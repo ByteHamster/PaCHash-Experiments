@@ -1,6 +1,6 @@
-#include <iostream>
+#include "rocksdb.cpp"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    testRocksDb();
     return 0;
 }

@@ -1,0 +1,6 @@
+[submodule "external/rocksdb"]
+	path = external/rocksdb
+	url = git@github.com:facebook/rocksdb.git
+[submodule "external/elias-fano"]
+	path = external/elias-fano
+	url = git@gitlab.com:ByteHamster/VariableSizeObjectStore.git

@@ -54,31 +54,36 @@ void testRocksDb() {
     std::cout<<"Flushing"<<std::endl;
     db->Flush(rocksdb::FlushOptions());
 
-    size_t numBatches = 4000;
-    size_t batchSize = 20;
+    size_t numBatches = 1000;
+    size_t batchSize = 64;
     std::cout<<"Querying"<<std::endl;
     auto queryStart = std::chrono::high_resolution_clock::now();
-    std::vector<std::string> values(batchSize);
+    std::vector<rocksdb::PinnableSlice> values(batchSize);
     std::vector<uint64_t> queryKeys(batchSize);
     std::vector<rocksdb::Slice> querySlices(batchSize);
+    std::vector<rocksdb::Status> statuses(batchSize);
 
     for (size_t i = 0; i < numBatches; i++) {
         for (int k = 0; k < batchSize; k++) {
-            values.at(k) = "42";
             queryKeys.at(k) = keys.at(rand() % numKeys);
             querySlices.at(k) = rocksdb::Slice(reinterpret_cast<const char *>(queryKeys.data() + k), sizeof(uint64_t));
         }
-        std::vector<rocksdb::Status> status = db->MultiGet(rocksdb::ReadOptions(), querySlices, &values);
+        db->MultiGet(rocksdb::ReadOptions(),
+                     db->DefaultColumnFamily(),
+                     batchSize,
+                     querySlices.data(),
+                     values.data(),
+                     statuses.data());
 
         for (int k = 0; k < batchSize; k++) {
             //uint64_t keyUint = queryKeys.at(k);
             //std::string expected(randomObjectProvider.getValue(keyUint), randomObjectProvider.getLength(keyUint));
-            //if (values.at(k) != expected) {
-            //    std::cerr<<"got: "<<values.at(k)<<std::endl<<"exp: "<<expected<<std::endl;
-            //    std::cerr<<status.at(k).ToString()<<std::endl;
+            //if (values.at(k).ToString() != expected) {
+            //    std::cerr<<"got: "<<values.at(k).ToString()<<std::endl<<"exp: "<<expected<<std::endl;
+            //    std::cerr<<statuses.at(k).ToString()<<std::endl;
             //}
-            if (!status.at(k).ok()) {
-                std::cerr<<status.at(k).ToString()<<std::endl;
+            if (!statuses.at(k).ok()) {
+                std::cerr<<statuses.at(k).ToString()<<std::endl;
                 exit(1);
             }
         }

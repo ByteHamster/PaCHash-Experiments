@@ -4,3 +4,6 @@
 [submodule "external/elias-fano"]
 	path = external/elias-fano
 	url = git@gitlab.com:ByteHamster/VariableSizeObjectStore.git
+[submodule "external/leveldb"]
+	path = external/leveldb
+	url = https://github.com/google/leveldb.git

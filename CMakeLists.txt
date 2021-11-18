@@ -20,5 +20,12 @@ add_subdirectory(external/rocksdb)
 target_link_libraries(ObjectStoreComparison PUBLIC rocksdb)
 target_include_directories(ObjectStoreComparison PUBLIC external/rocksdb/include)
 
+set(LEVELDB_BUILD_TESTS OFF)
+set(LEVELDB_BUILD_BENCHMARKS OFF)
+set(LEVELDB_INSTALL OFF)
+add_subdirectory(external/leveldb)
+target_link_libraries(ObjectStoreComparison PUBLIC leveldb)
+target_include_directories(ObjectStoreComparison PUBLIC external/leveldb/include)
+
 add_subdirectory(external/elias-fano)
 target_link_libraries(ObjectStoreComparison PUBLIC VariableSizeObjectStore)

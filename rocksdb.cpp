@@ -4,6 +4,43 @@
 #include <random>
 #include "external/elias-fano/benchmark/RandomObjectProvider.h"
 
+void buildTable() {
+    /*rocksdb::BlockBasedTableOptions table_options;
+    table_options.no_block_cache = true;
+    rocksdb::ImmutableOptions immutableOptions;
+    rocksdb::MutableCFOptions mutableCfOptions;
+    rocksdb::InternalKeyComparator internalKeyComparator;
+    rocksdb::IntTblPropCollectorFactories propCollectorFactories;
+    rocksdb::CompressionType compressionType;
+    rocksdb::CompressionOptions compressionOptions;
+    std::string columnFamilyName = "a";
+    rocksdb::TableBuilderOptions builderOptions(immutableOptions, mutableCfOptions,
+                                                internalKeyComparator,
+                                                &propCollectorFactories,
+                                                compressionType,
+                                                compressionOptions,
+                                                0,
+                                                columnFamilyName,
+                                                0);
+    std::string filename = "/tmp/test.txt";
+    int fd = open(filename.c_str(), O_RDWR);
+    rocksdb::FileOptions options;
+    options.use_direct_reads = true;
+    rocksdb::WritableFileWriter fileWriter(std::make_unique<rocksdb::PosixWritableFile>(
+            filename, fd, 4096, rocksdb::EnvOptions()), filename, options);
+    rocksdb::BlockBasedTableBuilder tableBuilder(table_options, builderOptions, &fileWriter);
+
+
+    for (int i = 0; i < 10; i++) {
+        std::string key = "Hallo" + std::to_string(i);
+        rocksdb::Slice keySlice = rocksdb::Slice(key.data(), key.length());
+        std::string value = "Value" + std::to_string(i);
+        rocksdb::Slice valueSlice = rocksdb::Slice(value.data(), value.length());
+        tableBuilder.Add(keySlice, valueSlice);
+    }
+    tableBuilder.Finish();*/
+}
+
 static std::vector<uint64_t> generateRandomKeys(size_t N) {
     uint64_t seed = std::random_device{}();
     std::cout<<"# Seed for input keys: "<<seed<<std::endl;

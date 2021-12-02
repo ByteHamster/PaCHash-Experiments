@@ -18,8 +18,9 @@ static std::vector<std::string> generateRandomStringKeys(size_t N) {
     return keys;
 }
 
+size_t averageSize = 256;
 static std::vector<std::string> randomKeys;
-static RandomObjectProvider randomObjectProvider(EQUAL_DISTRIBUTION, 256);
+static RandomObjectProvider randomObjectProvider(EQUAL_DISTRIBUTION, averageSize);
 
 static void handleResult(void *arg, const leveldb::Slice &key, const leveldb::Slice &value) {
     //std::cout<<std::string(key.data(), key.size())<<": "<<std::string(value.data(), value.size())<<std::endl;
@@ -35,6 +36,7 @@ static void testLeveldb(int N) {
 
     std::string filename = "/tmp/test.leveldb";
     leveldb::Options options;
+    options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
     options.compression = leveldb::CompressionType::kNoCompression;
     leveldb::WritableFile *file = nullptr;
     leveldb::Env::Default()->NewWritableFile(filename, &file);
@@ -52,6 +54,7 @@ static void testLeveldb(int N) {
     leveldb::Status status = tableBuilder.Finish();
     file->Close();
     size_t size = tableBuilder.FileSize();
+    std::cout<<"Size: "<<prettyBytes(size)<<std::endl;
 
     leveldb::Table *table = nullptr;
     leveldb::RandomAccessFile *raFile = nullptr;
@@ -68,8 +71,13 @@ static void testLeveldb(int N) {
     }
     auto queryEnd = std::chrono::high_resolution_clock::now();
     long timeMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(queryEnd - queryStart).count();
-    std::cout<<"Queries: "<<numQueries<<", ms: "<<timeMicroseconds/1000<<std::endl;
-    std::cout<<"kQueries/s: "<<(double)numQueries*1000.0/((double)timeMicroseconds)<<std::endl;
-    std::cout<<"ns per query (with cached IO): "<<(((double)timeMicroseconds/(double)numQueries)*1000)<<std::endl;
+    std::cout<<"RESULT"
+            <<" objectSize="<<averageSize
+            <<" method=leveldb_mmap"
+            <<" numObjects="<<N
+            <<" numQueries="<<numQueries
+            <<" timeMs="<<timeMicroseconds/1000
+            <<" queriesPerSecond="<<(double)numQueries*1000000.0/((double)timeMicroseconds)
+            <<" findObject="<<(((double)timeMicroseconds/(double)numQueries)*1000)<<std::endl;
 }
 

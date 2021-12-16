@@ -13,7 +13,7 @@ static void handleResult(void *arg, const leveldb::Slice &key, const leveldb::Sl
     assert(value.size() == length);
 }
 
-static void testLeveldb(int N, size_t averageLength) {
+static void testLeveldb(size_t N, size_t averageLength) {
     length = averageLength;
     randomKeys = generateRandomStringKeys(N);
     std::sort(randomKeys.begin(), randomKeys.end());
@@ -23,6 +23,7 @@ static void testLeveldb(int N, size_t averageLength) {
     options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
     options.compression = leveldb::CompressionType::kNoCompression;
     leveldb::WritableFile *file = nullptr;
+    leveldb::Env::Default()->DeleteFile(filename);
     leveldb::Env::Default()->NewWritableFile(filename, &file);
     leveldb::TableBuilder tableBuilder(options, file);
 

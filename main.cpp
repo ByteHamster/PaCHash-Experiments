@@ -5,9 +5,11 @@
 #include "test_pachash.h"
 
 int main() {
-    testLeveldb(1e6, 100);
-    testRocksDb(1e6, 100);
-    testSilt(1e6, 100);
-    testPaCHash(1e6, 100);
+    size_t N = 5e6;
+    size_t averageLength = 256;
+    testLeveldb(N, averageLength);
+    testRocksDb(N, averageLength);
+    testSilt(N, averageLength);
+    testPaCHash(N, averageLength);
     return 0;
 }

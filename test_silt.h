@@ -8,14 +8,14 @@ void testSilt(size_t N, size_t averageLength) {
 
     system("mkdir -p /tmp/silt-test");
     auto* config = new fawn::Configuration("../siltConfig.xml");
+    config->SetStringValue("data-len", std::to_string(averageLength));
     fawn::FawnDS_Combi* store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
     store->Destroy();
     fawn::FawnDS_Return res = store->Create();
     assert(res == fawn::FawnDS_Return::OK);
-    fawn::SizedValue<100> value;
-    value.resize(averageLength, false);
+    char *content = static_cast<char *>(malloc(averageLength));
     for (uint64_t key : keys) {
-        memset(value.data(), 'R', averageLength);
+        fawn::ConstRefValue value(content, averageLength);
         fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(&key), value);
         assert(res == fawn::FawnDS_Return::OK);
         //std::cout<<"Put("<<key<<") = "<<res<<std::endl;

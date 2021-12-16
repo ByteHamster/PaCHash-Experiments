@@ -35,6 +35,8 @@ void testRocksDb(size_t numKeys, size_t averageLength) {
     }
     std::cout<<"Flushing"<<std::endl;
     db->Flush(rocksdb::FlushOptions());
+    db->Close();
+    rocksdb::DB::Open(options, filePath, &db);
 
     size_t numBatches = 20000;
     size_t batchSize = 64;

@@ -1,10 +1,13 @@
-#include "leveldb_test.h"
-#include "rocksdb_test.h"
+#include "utils.h"
+#include "test_leveldb.h"
+#include "test_rocksdb.h"
+#include "test_silt.h"
+#include "test_pachash.h"
 
 int main() {
-    //for (int i = 1e6; i <= 20e6; i+= 1e6) {
-    //    testLeveldb(i);
-    //}
-    //testRocksDb();
+    testLeveldb(1e6, 100);
+    testRocksDb(1e6, 100);
+    testSilt(1e6, 100);
+    testPaCHash(1e6, 100);
     return 0;
 }

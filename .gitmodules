@@ -1,9 +1,12 @@
 [submodule "external/rocksdb"]
 	path = external/rocksdb
 	url = git@github.com:facebook/rocksdb.git
-[submodule "external/elias-fano"]
-	path = external/elias-fano
-	url = git@gitlab.com:ByteHamster/VariableSizeObjectStore.git
 [submodule "external/leveldb"]
 	path = external/leveldb
 	url = https://github.com/google/leveldb.git
+[submodule "external/silt"]
+	path = external/silt
+	url = git@github.com:silt/silt.git
+[submodule "external/pachash"]
+	path = external/pachash
+	url = git@github.com:ByteHamster/PaCHash.git

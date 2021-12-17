@@ -6,7 +6,7 @@
 	url = https://github.com/google/leveldb.git
 [submodule "external/silt"]
 	path = external/silt
-	url = git@github.com:silt/silt.git
+	url = git@github.com:ByteHamster/silt.git
 [submodule "external/pachash"]
 	path = external/pachash
 	url = git@github.com:ByteHamster/PaCHash.git

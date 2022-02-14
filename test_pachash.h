@@ -21,10 +21,9 @@ void testPaCHash(size_t N, size_t averageLength) {
 
     size_t depth = 128;
     pachash::ObjectStoreView<pachash::PaCHashObjectStore<8>, pachash::UringIO> objectStoreView(objectStore, 0, depth);
-    std::vector<pachash::VariableSizeObjectStore::QueryHandle> queryHandles;
+    std::vector<pachash::QueryHandle> queryHandles;
     for (size_t i = 0; i < depth; i++) {
-        queryHandles.emplace_back();
-        queryHandles.back().buffer = new (std::align_val_t(pachash::StoreConfig::BLOCK_LENGTH)) char[objectStore.requiredBufferPerQuery()];
+        queryHandles.emplace_back(objectStore);
     }
 
     auto queryStart = std::chrono::high_resolution_clock::now();
@@ -40,7 +39,7 @@ void testPaCHash(size_t N, size_t averageLength) {
 
     // Submit new queries as old ones complete
     while (handled < 2500000) {
-        pachash::VariableSizeObjectStore::QueryHandle *handle = objectStoreView.awaitAny();
+        pachash::QueryHandle *handle = objectStoreView.awaitAny();
         do {
             if (handle->resultPtr == nullptr) {
                 throw std::logic_error("Did not find item");
@@ -55,7 +54,7 @@ void testPaCHash(size_t N, size_t averageLength) {
 
     // Collect remaining in-flight queries
     for (size_t i = 0; i < depth; i++) {
-        pachash::VariableSizeObjectStore::QueryHandle *handle = objectStoreView.awaitAny();
+        pachash::QueryHandle *handle = objectStoreView.awaitAny();
         if (handle->resultPtr == nullptr) {
             throw std::logic_error("Did not find item");
         }

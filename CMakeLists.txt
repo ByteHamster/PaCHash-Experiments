@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(ObjectStoreComparison)
 
@@ -38,6 +38,12 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(silt PUBLIC ${XercesC_LIBRARIES} ${OPENSSL_LIBRARIES} gsl cblas tbb)
 set_property(TARGET silt PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(ObjectStoreComparison PUBLIC silt)
+
+add_custom_command(OUTPUT external/silt/utils/config.h
+        COMMAND "autoreconf -is && ./configure && mv config.h utils/config.h"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extern/lz4)
+add_custom_target(siltConfig DEPENDS external/silt/utils/config.h)
+add_dependencies(silt siltConfig)
 
 add_subdirectory(external/pachash)
 target_link_libraries(ObjectStoreComparison PUBLIC PaCHash)

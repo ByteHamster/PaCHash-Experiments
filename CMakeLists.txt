@@ -39,11 +39,11 @@ target_link_libraries(silt PUBLIC ${XercesC_LIBRARIES} ${OPENSSL_LIBRARIES} gsl 
 set_property(TARGET silt PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(ObjectStoreComparison PUBLIC silt)
 
-add_custom_command(OUTPUT external/silt/utils/config.h
-        COMMAND "autoreconf -is && ./configure && mv config.h utils/config.h"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/extern/lz4)
-add_custom_target(siltConfig DEPENDS external/silt/utils/config.h)
-add_dependencies(silt siltConfig)
+#add_custom_command(OUTPUT external/silt/utils/config.h
+#        COMMAND autoreconf -is && ./configure && mv config.h utils/config.h && sed -i 's/HAVE_LIBDB/HAVE_LIBDB_NO/g' utils/config.h
+#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/silt)
+#add_custom_target(siltConfig DEPENDS external/silt/utils/config.h)
+#add_dependencies(silt siltConfig)
 
 add_subdirectory(external/pachash)
 target_link_libraries(ObjectStoreComparison PUBLIC PaCHash)

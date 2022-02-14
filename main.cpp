@@ -5,13 +5,15 @@
 #include "test_pachash.h"
 
 int main() {
-    size_t N = 1e5;
-    size_t averageLength = 256;
-    size_t numQueries = 1e5;
+    for (int i = 1; i <= 12; i++) {
+        size_t N = i * 1e6;
+        size_t averageLength = 256;
+        size_t numQueries = 1e6;
 
-    SiltComparisonItem(N, averageLength, numQueries).performBenchmark();
-    LevelDBComparisonItem(N, averageLength, numQueries).performBenchmark();
-    RocksDBComparisonItem(N, averageLength, numQueries).performBenchmark();
-    PaCHashComparisonItem(N, averageLength, numQueries).performBenchmark();
+        SiltComparisonItem(N, averageLength, numQueries).performBenchmark();
+        LevelDBComparisonItem(N, averageLength, numQueries).performBenchmark();
+        RocksDBComparisonItem(N, averageLength, numQueries).performBenchmark();
+        PaCHashComparisonItem(N, averageLength, numQueries).performBenchmark();
+    }
     return 0;
 }

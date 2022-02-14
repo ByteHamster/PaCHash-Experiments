@@ -32,7 +32,6 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::Env::Default()->NewWritableFile(filename, &file);
             leveldb::TableBuilder tableBuilder(options, file);
 
-            std::cout<<"Inserting"<<std::endl;
             const char *value = static_cast<const char *>(malloc(averageLength));
             for (std::string &key : keys) {
                 leveldb::Slice keySlice(key.data(), sizeof(uint64_t));

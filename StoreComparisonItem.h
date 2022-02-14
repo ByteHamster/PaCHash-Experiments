@@ -19,17 +19,21 @@ class StoreComparisonItem {
         virtual void query() = 0;
 
         void performBenchmark() {
+            std::cout<<method<<": Construction"<<std::endl;
             auto constructStart = std::chrono::high_resolution_clock::now();
             construct();
             auto constructEnd = std::chrono::high_resolution_clock::now();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
 
-            sleep(2);
+            usleep(200*1000);
 
+            std::cout<<method<<": Query"<<std::endl;
             auto queryStart = std::chrono::high_resolution_clock::now();
             query();
             auto queryEnd = std::chrono::high_resolution_clock::now();
             long queryTimeMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(queryEnd - queryStart).count();
+
+            usleep(200*1000);
 
             std::cout << "RESULT"
                       << " method=" << method

@@ -34,7 +34,6 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         }
 
         void construct() override {
-            std::cout<<"Inserting"<<std::endl;
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
             const char *value = static_cast<const char *>(malloc(averageLength));
@@ -42,7 +41,6 @@ class RocksDBComparisonItem : public StoreComparisonItem {
                 rocksdb::Slice key(reinterpret_cast<const char *>(&keyUint), sizeof(uint64_t));
                 db->Put(writeOptions, key, rocksdb::Slice(value, averageLength));
             }
-            std::cout<<"Flushing"<<std::endl;
             db->Flush(rocksdb::FlushOptions());
             db->Close();
             rocksdb::DB::Open(options, filePath, &db);

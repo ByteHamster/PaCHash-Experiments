@@ -1,4 +1,5 @@
 #include <utility>
+#include <unistd.h>
 
 #pragma once
 
@@ -22,6 +23,8 @@ class StoreComparisonItem {
             construct();
             auto constructEnd = std::chrono::high_resolution_clock::now();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
+
+            sleep(2);
 
             auto queryStart = std::chrono::high_resolution_clock::now();
             query();

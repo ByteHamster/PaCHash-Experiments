@@ -1,15 +1,22 @@
 #include <PaCHashObjectStore.h>
+
+#include <utility>
 #include "StoreComparisonItem.h"
 
-class PaCHashComparisonItem : public StoreComparisonItem {
+class PaCHashComparisonItemBase : public StoreComparisonItem {
     public:
+        const char* filename = "/tmp/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
         std::vector<std::uint64_t> keys;
 
-        PaCHashComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("pachash", N, averageLength, numQueries),
-                objectStore(1, "/tmp/pachash-test", 0) {
+        PaCHashComparisonItemBase(std::string method, size_t N, size_t averageLength, size_t numQueries) :
+                StoreComparisonItem(std::move(method), N, averageLength, numQueries),
+                objectStore(1, filename, 0) {
             keys = generateRandomKeys(N);
+        }
+
+        ~PaCHashComparisonItemBase() {
+            unlink(filename);
         }
 
         void construct() override {
@@ -27,6 +34,27 @@ class PaCHashComparisonItem : public StoreComparisonItem {
             };
             objectStore.writeToFile(keys.begin(), keys.end(), hashFunction, lengthEx, valueEx);
             objectStore.reloadFromFile();
+        }
+};
+
+class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
+    public:
+        PaCHashMicroIndexComparisonItem(size_t N, size_t averageLength, size_t numQueries)
+                : PaCHashComparisonItemBase("pachash_micro_index", N, averageLength, numQueries) {
+        }
+
+        void query() override {
+            std::tuple<size_t, size_t> accessDetails;
+            for (size_t handled = 0; handled < numQueries; handled++) {
+                objectStore.findBlocksToAccess(&accessDetails, keys[rand() % N]);
+            }
+        }
+};
+
+class PaCHashComparisonItem : public PaCHashComparisonItemBase {
+    public:
+        PaCHashComparisonItem(size_t N, size_t averageLength, size_t numQueries)
+            : PaCHashComparisonItemBase("pachash", N, averageLength, numQueries) {
         }
 
         void query() override {

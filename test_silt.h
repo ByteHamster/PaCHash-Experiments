@@ -21,6 +21,10 @@ class SiltComparisonItem : public StoreComparisonItem {
             assert(res == fawn::FawnDS_Return::OK);
         }
 
+        ~SiltComparisonItem() {
+            store->Destroy();
+        }
+
         void construct() override {
             char *content = static_cast<char *>(malloc(averageLength));
             for (uint64_t key : keys) {

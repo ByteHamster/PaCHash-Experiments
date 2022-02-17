@@ -33,6 +33,11 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
         }
 
+        ~RocksDBComparisonItem() {
+            std::vector<rocksdb::ColumnFamilyDescriptor> x;
+            rocksdb::DestroyDB(filePath, options, x);
+        }
+
         void construct() override {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;

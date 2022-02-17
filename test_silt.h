@@ -1,15 +1,16 @@
 #include <fawnds_combi.h>
+#include <fawnds_sf_ordered_trie.h>
 #include "fawnds.h"
 #include "configuration.h"
 #include "fawnds_factory.h"
 
-class SiltComparisonItem : public StoreComparisonItem {
+class SiltComparisonItemBase : public StoreComparisonItem {
     public:
         std::vector<std::uint64_t> keys;
         fawn::FawnDS_Combi* store;
 
-        SiltComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("silt", N, averageLength, numQueries) {
+        SiltComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
+                StoreComparisonItem(name, N, averageLength, numQueries) {
             keys = generateRandomKeys(N);
 
             system("rm -rf /tmp/silt-test");
@@ -17,12 +18,11 @@ class SiltComparisonItem : public StoreComparisonItem {
             auto* config = new fawn::Configuration("../siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(averageLength));
             store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
-            store->Destroy();
             fawn::FawnDS_Return res = store->Create();
             assert(res == fawn::FawnDS_Return::OK);
         }
 
-        ~SiltComparisonItem() {
+        ~SiltComparisonItemBase() {
             store->Destroy();
             system("rm -r /tmp/silt-test");
         }
@@ -37,6 +37,13 @@ class SiltComparisonItem : public StoreComparisonItem {
             }
             store->Flush();
         }
+};
+
+class SiltComparisonItem : public SiltComparisonItemBase {
+    public:
+        SiltComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
+                SiltComparisonItemBase("silt", N, averageLength, numQueries) {
+        }
 
         void query() override {
             size_t handled = 0;
@@ -47,5 +54,106 @@ class SiltComparisonItem : public StoreComparisonItem {
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
                 handled++;
             }
+        }
+};
+
+class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
+    public:
+        fawn::FawnDS_SF_Ordered_Trie* sortedStore;
+        std::vector<std::uint64_t> keys;
+
+        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
+                StoreComparisonItem(name, N, averageLength, numQueries) {
+            keys = generateRandomKeys(N);
+
+            system("rm -rf /tmp/silt-test-sorted");
+            system("mkdir -p /tmp/silt-test-sorted");
+            auto* config = new fawn::Configuration("../siltConfigSorted.xml");
+            config->SetStringValue("data-len", std::to_string(averageLength));
+            sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
+            fawn::FawnDS_Return res = sortedStore->Create();
+            assert(res == fawn::FawnDS_Return::OK);
+        }
+
+        void construct() override {
+            fawn::Configuration *sorter_config = new fawn::Configuration();
+
+            char buf[1024];
+
+            if (sorter_config->CreateNodeAndAppend("type", ".") != 0)
+                assert(false);
+            if (sorter_config->SetStringValue("type", "sorter") != 0)
+                assert(false);
+
+            if (sorter_config->CreateNodeAndAppend("key-len", ".") != 0)
+                assert(false);
+            snprintf(buf, sizeof(buf), "%zu", 8ul);
+            if (sorter_config->SetStringValue("key-len", buf) != 0)
+                assert(false);
+
+            if (sorter_config->CreateNodeAndAppend("data-len", ".") != 0)
+                assert(false);
+            snprintf(buf, sizeof(buf), "%zu", averageLength);
+            if (sorter_config->SetStringValue("data-len", buf) != 0)
+                assert(false);
+
+            if (sorter_config->CreateNodeAndAppend("temp-file", ".") != 0)
+                assert(false);
+            if (sorter_config->SetStringValue("temp-file", "/tmp/silt-test-sorted") != 0)
+                assert(false);
+
+            fawn::FawnDS* sorter = fawn::FawnDS_Factory::New(sorter_config);
+            assert(sorter);
+            fawn::FawnDS_Return res = sorter->Create();
+            assert(res == fawn::OK);
+
+            char *content = static_cast<char *>(malloc(averageLength));
+            for (uint64_t key : keys) {
+                fawn::ConstRefValue value(content, averageLength);
+                fawn::FawnDS_Return res = sorter->Put(fawn::ConstRefValue(&key), value);
+                assert(res == fawn::FawnDS_Return::OK);
+            }
+            sorter->Flush();
+
+            fawn::FawnDS_ConstIterator it_m = sorter->Enumerate();
+            while (true) {
+                if (it_m.IsEnd()) {
+                    break;
+                }
+                fawn::FawnDS_Return ret = sortedStore->Put( it_m->key, it_m->data);
+                assert(ret == fawn::OK);
+                it_m++;
+            }
+            sortedStore->Flush();
+        }
+};
+
+class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
+    public:
+        SiltComparisonItemSortedStore(size_t N, size_t averageLength, size_t numQueries) :
+                SiltComparisonItemSortedStoreBase("silt_sorted", N, averageLength, numQueries) {
+        }
+
+        void query() override {
+            size_t handled = 0;
+            while (handled < numQueries) {
+                fawn::Value valueRead;
+                fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(&keys[rand() % keys.size()]), valueRead);
+                assert(res == fawn::FawnDS_Return::OK);
+                //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
+                handled++;
+            }
+        }
+};
+
+class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreBase {
+    public:
+        SiltComparisonItemSortedStoreMicro(size_t N, size_t averageLength, size_t numQueries) :
+                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, averageLength, numQueries) {
+        }
+
+        void query() override {
+            // TODO
+            //sortedStore->Get(fawn::ConstRefValue(&keys[rand() % keys.size()]), valueRead);
         }
 };

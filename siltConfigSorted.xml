@@ -1,0 +1,21 @@
+<fawnds>
+	<type>sf_ordered_trie</type>
+	<id>0</id>
+
+	<key-len>8</key-len>
+	<data-len>100</data-len>
+	<keys-per-block>1</keys-per-block>
+	<bucket-size>128</bucket-size>
+	<skip-bits>0</skip-bits>
+
+	<!-- just for test program -->
+	<size>1000000</size>
+
+	<datastore>
+		<type>file</type>
+		<id></id>
+		<data-len></data-len>
+		<use-buffered-io-only>1</use-buffered-io-only>
+		<file>/tmp/silt-test-sorted/store</file>
+	</datastore>
+</fawnds>

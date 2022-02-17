@@ -18,11 +18,13 @@ int main() {
 
         // Partial benchmark
         LevelDBSingleTableComparisonItem(N, averageLength, numQueries).performBenchmark();
+        SiltComparisonItemSortedStore(N, averageLength, numQueries).performBenchmark();
 
         // Microbenchmark
         numQueries = 5e6;
         PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
         LevelDBSingleTableMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
+        SiltComparisonItemSortedStoreMicro(N, averageLength, numQueries).performBenchmark();
     }
     return 0;
 }

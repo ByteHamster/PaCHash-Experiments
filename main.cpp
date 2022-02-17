@@ -16,9 +16,13 @@ int main() {
         RocksDBComparisonItem(N, averageLength, numQueries).performBenchmark();
         PaCHashComparisonItem(N, averageLength, numQueries).performBenchmark();
 
-        // Microbenchmark
-        PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
+        // Partial benchmark
         LevelDBSingleTableComparisonItem(N, averageLength, numQueries).performBenchmark();
+
+        // Microbenchmark
+        numQueries = 5e6;
+        PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
+        LevelDBSingleTableMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
     }
     return 0;
 }

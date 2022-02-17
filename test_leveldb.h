@@ -54,7 +54,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         }
 };
 
-class LevelDBSingleTableComparisonItem : public StoreComparisonItem {
+class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
     public:
         static void handleResult(void *arg, const leveldb::Slice &key, const leveldb::Slice &value) {
             //std::cout<<std::string(key.data(), key.size())<<": "<<std::string(value.data(), value.size())<<std::endl;
@@ -68,14 +68,14 @@ class LevelDBSingleTableComparisonItem : public StoreComparisonItem {
         size_t size = 0;
         leveldb::Options options;
 
-        LevelDBSingleTableComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("leveldb_singletable", N, averageLength, numQueries) {
+        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
+                StoreComparisonItem(name, N, averageLength, numQueries) {
             keys = generateRandomStringKeys(N);
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
         }
 
-        ~LevelDBSingleTableComparisonItem() {
+        ~LevelDBSingleTableComparisonItemBase() {
             leveldb::Env::Default()->DeleteFile(filename);
         }
 
@@ -96,6 +96,13 @@ class LevelDBSingleTableComparisonItem : public StoreComparisonItem {
             file->Close();
             size = tableBuilder.FileSize();
         }
+};
+
+class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItemBase {
+    public:
+        LevelDBSingleTableComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
+                LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, averageLength, numQueries) {
+        }
 
         void query() override {
             leveldb::Status status;
@@ -109,6 +116,28 @@ class LevelDBSingleTableComparisonItem : public StoreComparisonItem {
             for (size_t i = 0; i < numQueries; i++) {
                 leveldb::Slice keySlice(keys[rand() % N].data(), sizeof(uint64_t));
                 status = table->InternalGet(readOptions, keySlice, nullptr, handleResult);
+            }
+        }
+};
+
+class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComparisonItemBase {
+    public:
+        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
+                LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, averageLength, numQueries) {
+        }
+
+        void query() override {
+            leveldb::Status status;
+
+            leveldb::Table *table = nullptr;
+            leveldb::RandomAccessFile *raFile = nullptr;
+            leveldb::Env::Default()->NewRandomAccessFile(filename, &raFile);
+            status = leveldb::Table::Open(options, raFile, size, &table);
+
+            leveldb::ReadOptions readOptions;
+            for (size_t i = 0; i < numQueries; i++) {
+                leveldb::Slice keySlice(keys[rand() % N].data(), sizeof(uint64_t));
+                table->InternalGetIndexOnly(readOptions, keySlice);
             }
         }
 };

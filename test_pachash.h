@@ -59,7 +59,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
 
         void query() override {
             size_t depth = 128;
-            pachash::ObjectStoreView<pachash::PaCHashObjectStore<8>, pachash::UringIO> objectStoreView(objectStore, 0, depth);
+            pachash::ObjectStoreView<pachash::PaCHashObjectStore<8>, pachash::PosixIO> objectStoreView(objectStore, 0, depth);
             std::vector<pachash::QueryHandle*> queryHandles;
             for (size_t i = 0; i < depth; i++) {
                 queryHandles.emplace_back(new pachash::QueryHandle(objectStore));

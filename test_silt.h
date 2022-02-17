@@ -17,6 +17,9 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             system("mkdir -p /tmp/silt-test");
             auto* config = new fawn::Configuration("../siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(averageLength));
+            char buf[1024];
+            snprintf(buf, sizeof(buf), "%zu", N);
+            config->SetStringValue("size", buf);
             store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = store->Create();
             assert(res == fawn::FawnDS_Return::OK);
@@ -24,6 +27,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
         ~SiltComparisonItemBase() {
             store->Destroy();
+            delete store;
             system("rm -r /tmp/silt-test");
         }
 
@@ -70,9 +74,18 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             system("mkdir -p /tmp/silt-test-sorted");
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
             config->SetStringValue("data-len", std::to_string(averageLength));
+            char buf[1024];
+            snprintf(buf, sizeof(buf), "%zu", N);
+            config->SetStringValue("size", buf);
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = sortedStore->Create();
             assert(res == fawn::FawnDS_Return::OK);
+        }
+
+        ~SiltComparisonItemSortedStoreBase() {
+            sortedStore->Destroy();
+            delete sortedStore;
+            system("rm -rf /tmp/silt-test-sorted");
         }
 
         void construct() override {
@@ -95,6 +108,12 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
                 assert(false);
             snprintf(buf, sizeof(buf), "%zu", averageLength);
             if (sorter_config->SetStringValue("data-len", buf) != 0)
+                assert(false);
+
+            if (sorter_config->CreateNodeAndAppend("size", ".") != 0)
+                assert(false);
+            snprintf(buf, sizeof(buf), "%zu", N);
+            if (sorter_config->SetStringValue("size", buf) != 0)
                 assert(false);
 
             if (sorter_config->CreateNodeAndAppend("temp-file", ".") != 0)
@@ -124,6 +143,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
                 assert(ret == fawn::OK);
                 it_m++;
             }
+            sorter->Destroy();
+            delete sorter;
             sortedStore->Flush();
         }
 };
@@ -153,7 +174,13 @@ class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreB
         }
 
         void query() override {
-            // TODO
-            //sortedStore->Get(fawn::ConstRefValue(&keys[rand() % keys.size()]), valueRead);
+            size_t handled = 0;
+            while (handled < numQueries) {
+                fawn::Value valueRead;
+                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(&keys[rand() % keys.size()]));
+                assert(res == fawn::FawnDS_Return::KEY_DELETED || res == fawn::KEY_NOT_FOUND);
+                //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
+                handled++;
+            }
         }
 };

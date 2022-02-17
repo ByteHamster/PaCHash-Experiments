@@ -3,7 +3,7 @@
 	<id>0</id>
 
 	<key-len>8</key-len>
-	<data-len>100</data-len>
+	<data-len>256</data-len>
 	<keys-per-block>1</keys-per-block>
 	<bucket-size>128</bucket-size>
 	<skip-bits>0</skip-bits>

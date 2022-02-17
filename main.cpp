@@ -21,10 +21,10 @@ int main() {
         SiltComparisonItemSortedStore(N, averageLength, numQueries).performBenchmark();
 
         // Microbenchmark
+        SiltComparisonItemSortedStoreMicro(N, averageLength, numQueries).performBenchmark();
         numQueries = 5e6;
         PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
         LevelDBSingleTableMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
-        SiltComparisonItemSortedStoreMicro(N, averageLength, numQueries).performBenchmark();
     }
     return 0;
 }

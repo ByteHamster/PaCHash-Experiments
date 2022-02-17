@@ -25,6 +25,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         }
 
         ~LevelDBComparisonItem() {
+            delete db;
             leveldb::DestroyDB(filename, options);
         }
 
@@ -39,7 +40,8 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::WriteOptions writeOptions;
             writeOptions.sync = true;
             db->Write(writeOptions, &batch);
-            // TODO: Compact?
+            delete db;
+            leveldb::Status status = leveldb::DB::Open(options, filename, &db);
         }
 
         void query() override {

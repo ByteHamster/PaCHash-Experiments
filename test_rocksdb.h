@@ -34,6 +34,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         }
 
         ~RocksDBComparisonItem() {
+            db->Close();
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
         }
@@ -42,10 +43,12 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
             const char *value = static_cast<const char *>(malloc(averageLength));
+            rocksdb::WriteBatch writeBatch;
             for (uint64_t keyUint : keys) {
                 rocksdb::Slice key(reinterpret_cast<const char *>(&keyUint), sizeof(uint64_t));
-                db->Put(writeOptions, key, rocksdb::Slice(value, averageLength));
+                writeBatch.Put(key, rocksdb::Slice(value, averageLength));
             }
+            db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());
             db->Close();
             rocksdb::DB::Open(options, filePath, &db);

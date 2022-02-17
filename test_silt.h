@@ -12,6 +12,7 @@ class SiltComparisonItem : public StoreComparisonItem {
                 StoreComparisonItem("silt", N, averageLength, numQueries) {
             keys = generateRandomKeys(N);
 
+            system("rm -rf /tmp/silt-test");
             system("mkdir -p /tmp/silt-test");
             auto* config = new fawn::Configuration("../siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(averageLength));
@@ -23,6 +24,7 @@ class SiltComparisonItem : public StoreComparisonItem {
 
         ~SiltComparisonItem() {
             store->Destroy();
+            system("rm -r /tmp/silt-test");
         }
 
         void construct() override {

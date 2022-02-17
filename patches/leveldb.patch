@@ -1,0 +1,52 @@
+diff --git a/include/leveldb/table.h b/include/leveldb/table.h
+index a30e903..0ec759b 100644
+--- a/include/leveldb/table.h
++++ b/include/leveldb/table.h
+@@ -58,7 +58,7 @@ class LEVELDB_EXPORT Table {
+   // be close to the file length.
+   uint64_t ApproximateOffsetOf(const Slice& key) const;
+ 
+- private:
++ public:
+   friend class TableCache;
+   struct Rep;
+ 
+@@ -73,6 +73,8 @@ class LEVELDB_EXPORT Table {
+                      void (*handle_result)(void* arg, const Slice& k,
+                                            const Slice& v));
+ 
++  void InternalGetIndexOnly(const ReadOptions&, const Slice& key);
++
+   void ReadMeta(const Footer& footer);
+   void ReadFilter(const Slice& filter_handle_value);
+ 
+diff --git a/table/table.cc b/table/table.cc
+index 29e835f..2c824c0 100644
+--- a/table/table.cc
++++ b/table/table.cc
+@@ -241,6 +241,12 @@ Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
+   return s;
+ }
+ 
++void Table::InternalGetIndexOnly(const ReadOptions& options, const Slice& k) {
++    Iterator* iiter = rep_->index_block->NewIterator(rep_->options.comparator);
++    iiter->Seek(k);
++    delete iiter;
++}
++
+ uint64_t Table::ApproximateOffsetOf(const Slice& key) const {
+   Iterator* index_iter =
+       rep_->index_block->NewIterator(rep_->options.comparator);
+diff --git a/util/env_posix.cc b/util/env_posix.cc
+index 24b1c4c..a11f193 100644
+--- a/util/env_posix.cc
++++ b/util/env_posix.cc
+@@ -45,7 +45,7 @@ namespace {
+ int g_open_read_only_file_limit = -1;
+ 
+ // Up to 1000 mmap regions for 64-bit binaries; none for 32-bit.
+-constexpr const int kDefaultMmapLimit = (sizeof(void*) >= 8) ? 1000 : 0;
++constexpr const int kDefaultMmapLimit = (sizeof(void*) >= 8) ? 1000 : 0; // Set to 0 to use posix read
+ 
+ // Can be set using EnvPosixTestHelper::SetReadOnlyMMapLimit().
+ int g_mmap_limit = kDefaultMmapLimit;

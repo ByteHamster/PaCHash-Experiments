@@ -10,8 +10,8 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         std::string filePath = "/tmp/rocksdb-test";
         rocksdb::Options options;
 
-        RocksDBComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("rocksdb", N, averageLength, numQueries) {
+        RocksDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem("rocksdb", N, objectSize, numQueries) {
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;
             table_options.no_block_cache = true;
@@ -41,7 +41,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             writeOptions.disableWAL = true;
             rocksdb::WriteBatch writeBatch;
             for (std::string &key : keys) {
-                writeBatch.Put(key, rocksdb::Slice(emptyValuePointer, averageLength));
+                writeBatch.Put(key, rocksdb::Slice(emptyValuePointer, objectSize));
             }
             db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());

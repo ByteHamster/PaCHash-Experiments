@@ -10,15 +10,15 @@ class StoreComparisonItem {
     public:
         std::string method;
         size_t N;
-        size_t averageLength;
+        size_t objectSize;
         size_t numQueries;
         const char *emptyValuePointer;
         std::vector<std::string> keys;
 
-        StoreComparisonItem(std::string method, size_t N, size_t averageLength, size_t numQueries)
-                : method(std::move(method)), N(N), averageLength(averageLength), numQueries(numQueries) {
+        StoreComparisonItem(std::string method, size_t N, size_t objectSize, size_t numQueries)
+                : method(std::move(method)), N(N), objectSize(objectSize), numQueries(numQueries) {
             keys = generateRandomKeys(N);
-            emptyValuePointer = new char[averageLength];
+            emptyValuePointer = new char[objectSize];
         }
 
         virtual ~StoreComparisonItem() {
@@ -56,7 +56,7 @@ class StoreComparisonItem {
 
             std::cout << "RESULT"
                       << " method=" << method
-                      << " objectSize=" << averageLength
+                      << " objectSize=" << objectSize
                       << " numObjects=" << N
                       << " numQueries=" <<numQueries
                       << " timeMs=" << queryTimeMicroseconds / 1000

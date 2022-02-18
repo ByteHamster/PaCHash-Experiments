@@ -5,6 +5,7 @@
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 #include <memory>
+#include <utility>
 
 class LevelDBComparisonItem : public StoreComparisonItem {
     public:
@@ -12,8 +13,8 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         leveldb::DB *db = nullptr;
         const std::string filename = "/tmp/leveldb-test";
 
-        LevelDBComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("leveldb", N, averageLength, numQueries) {
+        LevelDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem("leveldb", N, objectSize, numQueries) {
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
@@ -32,7 +33,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
 
         void construct() override {
             leveldb::WriteBatch batch;
-            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
+            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, objectSize);
             for (std::string &key : keys) {
                 batch.Put(key, valueSlice);
             }
@@ -67,8 +68,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         size_t size = 0;
         leveldb::Options options;
 
-        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(name, N, averageLength, numQueries) {
+        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
         }
@@ -83,7 +84,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             leveldb::Env::Default()->DeleteFile(filename);
             leveldb::Env::Default()->NewWritableFile(filename, &file);
             leveldb::TableBuilder tableBuilder(options, file);
-            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
+            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, objectSize);
             for (std::string &key : keys) {
                 tableBuilder.Add(key, valueSlice);
             }
@@ -95,8 +96,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
 
 class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, averageLength, numQueries) {
+        LevelDBSingleTableComparisonItem(size_t N, size_t objectSize, size_t numQueries)
+            : LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, objectSize, numQueries) {
         }
 
         void query() override {
@@ -117,8 +118,8 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
 class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, averageLength, numQueries) {
+        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t objectSize, size_t numQueries)
+            : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, objectSize, numQueries) {
         }
 
         void query() override {

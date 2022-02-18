@@ -10,12 +10,12 @@ class SiltComparisonItemBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_Combi* store;
 
-        SiltComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
+        SiltComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
             system("rm -rf /tmp/silt-test");
             system("mkdir -p /tmp/silt-test");
             auto* config = new fawn::Configuration("../siltConfig.xml");
-            config->SetStringValue("data-len", std::to_string(averageLength));
+            config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
             config->SetStringValue("size", buf);
@@ -32,7 +32,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
         void construct() override {
             for (std::string &key : keys) {
-                fawn::ConstRefValue value(emptyValuePointer, averageLength);
+                fawn::ConstRefValue value(emptyValuePointer, objectSize);
                 fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(key), value);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Put("<<key<<") = "<<res<<std::endl;
@@ -43,8 +43,8 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
 class SiltComparisonItem : public SiltComparisonItemBase {
     public:
-        SiltComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                SiltComparisonItemBase("silt", N, averageLength, numQueries) {
+        SiltComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
+                SiltComparisonItemBase("silt", N, objectSize, numQueries) {
         }
 
         void query() override {
@@ -63,12 +63,12 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_SF_Ordered_Trie* sortedStore;
 
-        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
+        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
             system("rm -rf /tmp/silt-test-sorted");
             system("mkdir -p /tmp/silt-test-sorted");
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
-            config->SetStringValue("data-len", std::to_string(averageLength));
+            config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
             config->SetStringValue("size", buf);
@@ -101,7 +101,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
             if (sorter_config->CreateNodeAndAppend("data-len", ".") != 0)
                 assert(false);
-            snprintf(buf, sizeof(buf), "%zu", averageLength);
+            snprintf(buf, sizeof(buf), "%zu", objectSize);
             if (sorter_config->SetStringValue("data-len", buf) != 0)
                 assert(false);
 
@@ -122,7 +122,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             assert(res == fawn::OK);
 
             for (std::string &key : keys) {
-                fawn::ConstRefValue value(emptyValuePointer, averageLength);
+                fawn::ConstRefValue value(emptyValuePointer, objectSize);
                 res = sorter->Put(fawn::ConstRefValue(key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
@@ -145,8 +145,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
 class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
     public:
-        SiltComparisonItemSortedStore(size_t N, size_t averageLength, size_t numQueries) :
-                SiltComparisonItemSortedStoreBase("silt_sorted", N, averageLength, numQueries) {
+        SiltComparisonItemSortedStore(size_t N, size_t objectSize, size_t numQueries) :
+                SiltComparisonItemSortedStoreBase("silt_sorted", N, objectSize, numQueries) {
         }
 
         void query() override {
@@ -163,8 +163,8 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
 
 class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreBase {
     public:
-        SiltComparisonItemSortedStoreMicro(size_t N, size_t averageLength, size_t numQueries) :
-                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, averageLength, numQueries) {
+        SiltComparisonItemSortedStoreMicro(size_t N, size_t objectSize, size_t numQueries) :
+                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, objectSize, numQueries) {
         }
 
         void query() override {

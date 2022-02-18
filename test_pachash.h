@@ -8,8 +8,8 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/tmp/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
 
-        PaCHashComparisonItemBase(std::string method, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(std::move(method), N, averageLength, numQueries),
+        PaCHashComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)
+            : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
                 objectStore(1, filename, 0) {
         }
 
@@ -23,7 +23,7 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             };
             auto lengthEx = [&](const std::string &key) -> size_t {
                 (void) key;
-                return averageLength;
+                return objectSize;
             };
             auto valueEx = [&](const std::string &key) -> const char * {
                 (void) key;
@@ -36,8 +36,8 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
 
 class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
     public:
-        PaCHashMicroIndexComparisonItem(size_t N, size_t averageLength, size_t numQueries)
-                : PaCHashComparisonItemBase("pachash_micro_index", N, averageLength, numQueries) {
+        PaCHashMicroIndexComparisonItem(size_t N, size_t objectSize, size_t numQueries)
+                : PaCHashComparisonItemBase("pachash_micro_index", N, objectSize, numQueries) {
         }
 
         void query() override {
@@ -56,8 +56,8 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        PaCHashComparisonItem(size_t N, size_t averageLength, size_t numQueries)
-            : PaCHashComparisonItemBase("pachash", N, averageLength, numQueries) {
+        PaCHashComparisonItem(size_t N, size_t objectSize, size_t numQueries)
+            : PaCHashComparisonItemBase("pachash", N, objectSize, numQueries) {
         }
 
         void beforeQuery() override {

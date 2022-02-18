@@ -7,25 +7,25 @@
 int main() {
     for (size_t N = 1e5; N <= 3e6; N += 1e5) {
         for (size_t i = 0; i < 6; i++) {
-            size_t averageLength = 256;
+            size_t objectSize = 256;
             size_t numQueries = 1e6;
 
             // Full data store
-            SiltComparisonItem(N, averageLength, numQueries).performBenchmark();
-            LevelDBComparisonItem(N, averageLength, numQueries).performBenchmark();
-            RocksDBComparisonItem(N, averageLength, numQueries).performBenchmark();
-            PaCHashComparisonItem(N, averageLength, numQueries).performBenchmark();
+            SiltComparisonItem(N, objectSize, numQueries).performBenchmark();
+            LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();
+            RocksDBComparisonItem(N, objectSize, numQueries).performBenchmark();
+            PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();
 
             // Partial benchmark
-            LevelDBSingleTableComparisonItem(N, averageLength, numQueries).performBenchmark();
-            SiltComparisonItemSortedStore(N, averageLength, numQueries).performBenchmark();
+            LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();
+            SiltComparisonItemSortedStore(N, objectSize, numQueries).performBenchmark();
 
             // Microbenchmark
-            SiltComparisonItemSortedStoreMicro(N, averageLength, numQueries).performBenchmark();
+            SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();
             numQueries = 5e6;
-            PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
-            LevelDBSingleTableMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
-            RecSplitComparisonItem(N, averageLength, numQueries).performBenchmark();
+            PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
+            LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
+            RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();
         }
     }
     return 0;

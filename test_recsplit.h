@@ -5,8 +5,8 @@ class RecSplitComparisonItem : public StoreComparisonItem {
     public:
         sux::function::RecSplit<8> *recSplit = nullptr;
 
-        RecSplitComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem("recsplit", N, averageLength, numQueries) {
+        RecSplitComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
+                StoreComparisonItem("recsplit", N, objectSize, numQueries) {
         }
 
         ~RecSplitComparisonItem() override {

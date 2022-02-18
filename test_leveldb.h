@@ -21,7 +21,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             options.create_if_missing = true;
             leveldb::DestroyDB(filename, options);
             leveldb::Status status = leveldb::DB::Open(options, filename, &db);
-            assert(status.ok());
+            if (!status.ok()) {
+                std::cerr<<status.ToString()<<std::endl;
+                exit(1);
+            }
         }
 
         ~LevelDBComparisonItem() {

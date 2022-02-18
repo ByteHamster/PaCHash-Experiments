@@ -13,13 +13,13 @@ class RecSplitComparisonItem : public StoreComparisonItem {
             delete recSplit;
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             recSplit = new sux::function::RecSplit<8>(keys, 2000);
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             for (size_t i = 0; i < numQueries; i++) {
-                recSplit->operator()(keys[rand() % N]);
+                recSplit->operator()(keysQueryOrder[i]);
             }
         }
 };

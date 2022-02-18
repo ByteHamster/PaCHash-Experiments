@@ -30,7 +30,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             system("rm -r /tmp/silt-test");
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             for (std::string &key : keys) {
                 fawn::ConstRefValue value(emptyValuePointer, objectSize);
                 fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(key), value);
@@ -47,14 +47,12 @@ class SiltComparisonItem : public SiltComparisonItemBase {
                 SiltComparisonItemBase("silt", N, objectSize, numQueries) {
         }
 
-        void query() override {
-            size_t handled = 0;
-            while (handled < numQueries) {
+        void query(std::vector<std::string> &keysQueryOrder) override {
+            for (size_t i = 0; i < numQueries; i++) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keys[rand() % keys.size()]), valueRead);
+                fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
-                handled++;
             }
         }
 };
@@ -83,7 +81,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             system("rm -rf /tmp/silt-test-sorted");
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             fawn::Configuration *sorter_config = new fawn::Configuration();
 
             char buf[1024];
@@ -149,14 +147,12 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
                 SiltComparisonItemSortedStoreBase("silt_sorted", N, objectSize, numQueries) {
         }
 
-        void query() override {
-            size_t handled = 0;
-            while (handled < numQueries) {
+        void query(std::vector<std::string> &keysQueryOrder) override {
+            for (size_t i; i < numQueries; i++) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(keys[rand() % N]), valueRead);
+                fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
-                handled++;
             }
         }
 };
@@ -167,14 +163,12 @@ class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreB
                 SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, objectSize, numQueries) {
         }
 
-        void query() override {
-            size_t handled = 0;
-            while (handled < numQueries) {
+        void query(std::vector<std::string> &keysQueryOrder) override {
+            for (size_t i; i < numQueries; i++) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keys[rand() % keys.size()]));
+                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keysQueryOrder[i]));
                 assert(res == fawn::FawnDS_Return::KEY_DELETED || res == fawn::KEY_NOT_FOUND);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
-                handled++;
             }
         }
 };

@@ -36,7 +36,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             rocksdb::DestroyDB(filePath, options, x);
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
             rocksdb::WriteBatch writeBatch;
@@ -49,16 +49,17 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             rocksdb::DB::Open(options, filePath, &db);
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             size_t batchSize = 64;
-            size_t numBatches = numQueries/batchSize;
             std::vector<rocksdb::PinnableSlice> values(batchSize);
             std::vector<rocksdb::Slice> querySlices(batchSize);
             std::vector<rocksdb::Status> statuses(batchSize);
 
-            for (size_t i = 0; i < numBatches; i++) {
+            size_t handled = 0;
+            while (handled < numQueries) {
                 for (size_t k = 0; k < batchSize; k++) {
-                    querySlices.at(k) = keys.at(rand() % N);
+                    querySlices.at(k) = keysQueryOrder[handled];
+                    handled++;
                 }
                 db->MultiGet(rocksdb::ReadOptions(),
                              db->DefaultColumnFamily(),

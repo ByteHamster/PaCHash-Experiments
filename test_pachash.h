@@ -17,7 +17,7 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             unlink(filename);
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             auto hashFunction = [](const std::string &key) -> pachash::StoreConfig::key_t {
                 return pachash::MurmurHash64(key);
             };
@@ -40,10 +40,10 @@ class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
                 : PaCHashComparisonItemBase("pachash_micro_index", N, objectSize, numQueries) {
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             std::tuple<size_t, size_t> accessDetails;
-            for (size_t handled = 0; handled < numQueries; handled++) {
-                pachash::StoreConfig::key_t key = pachash::MurmurHash64(keys[rand() % N]);
+            for (size_t i = 0; i < numQueries; i++) {
+                pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
                 objectStore.findBlocksToAccess(&accessDetails, key);
             }
         }
@@ -67,11 +67,11 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             }
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             size_t handled = 0;
             // Fill in-flight queue
             for (size_t i = 0; i < depth; i++) {
-                queryHandles[i]->prepare(keys[rand() % N]);
+                queryHandles[i]->prepare(keysQueryOrder[i]);
                 objectStoreView->enqueueQuery(queryHandles[i]);
                 handled++;
             }
@@ -82,7 +82,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     assert(handle->resultPtr != nullptr);
-                    handle->prepare(keys[rand() % N]);
+                    handle->prepare(keysQueryOrder[handled]);
                     objectStoreView->enqueueQuery(handle);
                     handle = objectStoreView->peekAny();
                     handled++;

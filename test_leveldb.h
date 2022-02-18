@@ -31,7 +31,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::DestroyDB(filename, options);
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             leveldb::WriteBatch batch;
             leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, objectSize);
             for (std::string &key : keys) {
@@ -44,12 +44,12 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::Status status = leveldb::DB::Open(options, filename, &db);
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::ReadOptions readOptions;
             std::string result;
             leveldb::Status status;
             for (size_t i = 0; i < numQueries; i++) {
-                status = db->Get(readOptions, keys[rand() % N], &result);
+                status = db->Get(readOptions, keysQueryOrder[i], &result);
                 assert(status.ok());
             }
         }
@@ -78,7 +78,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             leveldb::Env::Default()->DeleteFile(filename);
         }
 
-        void construct() override {
+        void construct(std::vector<std::string> &keys) override {
             std::sort(keys.begin(), keys.end());
             leveldb::WritableFile *file = nullptr;
             leveldb::Env::Default()->DeleteFile(filename);
@@ -100,7 +100,7 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
             : LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, objectSize, numQueries) {
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
 
             leveldb::Table *table = nullptr;
@@ -110,7 +110,7 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
-                status = table->InternalGet(readOptions, keys[rand() % N], nullptr, handleResult);
+                status = table->InternalGet(readOptions, keysQueryOrder[i], nullptr, handleResult);
                 assert(status.ok());
             }
         }
@@ -122,7 +122,7 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
             : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, objectSize, numQueries) {
         }
 
-        void query() override {
+        void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
 
             leveldb::Table *table = nullptr;
@@ -132,7 +132,7 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
 
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
-                table->InternalGetIndexOnly(readOptions, keys[rand() % N]);
+                table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
             }
         }
 };

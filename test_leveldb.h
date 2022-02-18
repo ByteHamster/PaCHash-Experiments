@@ -8,14 +8,12 @@
 
 class LevelDBComparisonItem : public StoreComparisonItem {
     public:
-        std::vector<std::string> keys;
         leveldb::Options options;
         leveldb::DB *db = nullptr;
         const std::string filename = "/tmp/leveldb-test";
 
         LevelDBComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem("leveldb", N, averageLength, numQueries) {
-            keys = generateRandomStringKeys(N);
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
@@ -34,10 +32,9 @@ class LevelDBComparisonItem : public StoreComparisonItem {
 
         void construct() override {
             leveldb::WriteBatch batch;
+            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
             for (std::string &key : keys) {
-                leveldb::Slice keySlice(key.data(), sizeof(uint64_t));
-                leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
-                batch.Put(keySlice, valueSlice);
+                batch.Put(key, valueSlice);
             }
             leveldb::WriteOptions writeOptions;
             writeOptions.sync = true;
@@ -49,9 +46,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         void query() override {
             leveldb::ReadOptions readOptions;
             std::string result;
+            leveldb::Status status;
             for (size_t i = 0; i < numQueries; i++) {
-                leveldb::Slice keySlice(keys[rand() % N].data(), sizeof(uint64_t));
-                db->Get(readOptions, keySlice, &result);
+                status = db->Get(readOptions, keys[rand() % N], &result);
+                assert(status.ok());
             }
         }
 };
@@ -65,14 +63,12 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             (void) value;
         }
 
-        std::vector<std::string> keys;
         std::string filename = "/tmp/leveldb-test-single";
         size_t size = 0;
         leveldb::Options options;
 
         LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem(name, N, averageLength, numQueries) {
-            keys = generateRandomStringKeys(N);
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
         }
@@ -87,10 +83,9 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             leveldb::Env::Default()->DeleteFile(filename);
             leveldb::Env::Default()->NewWritableFile(filename, &file);
             leveldb::TableBuilder tableBuilder(options, file);
+            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
             for (std::string &key : keys) {
-                leveldb::Slice keySlice(key.data(), sizeof(uint64_t));
-                leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
-                tableBuilder.Add(keySlice, valueSlice);
+                tableBuilder.Add(key, valueSlice);
             }
             leveldb::Status status = tableBuilder.Finish();
             file->Close();
@@ -114,8 +109,8 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
-                leveldb::Slice keySlice(keys[rand() % N].data(), sizeof(uint64_t));
-                status = table->InternalGet(readOptions, keySlice, nullptr, handleResult);
+                status = table->InternalGet(readOptions, keys[rand() % N], nullptr, handleResult);
+                assert(status.ok());
             }
         }
 };
@@ -136,8 +131,7 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
 
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
-                leveldb::Slice keySlice(keys[rand() % N].data(), sizeof(uint64_t));
-                table->InternalGetIndexOnly(readOptions, keySlice);
+                table->InternalGetIndexOnly(readOptions, keys[rand() % N]);
             }
         }
 };

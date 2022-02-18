@@ -7,12 +7,10 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
     public:
         const char* filename = "/tmp/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
-        std::vector<std::uint64_t> keys;
 
         PaCHashComparisonItemBase(std::string method, size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem(std::move(method), N, averageLength, numQueries),
                 objectStore(1, filename, 0) {
-            keys = generateRandomKeys(N);
         }
 
         ~PaCHashComparisonItemBase() override {
@@ -20,14 +18,14 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
         }
 
         void construct() override {
-            auto hashFunction = [](const std::uint64_t &key) -> pachash::StoreConfig::key_t {
-                return key;
+            auto hashFunction = [](const std::string &key) -> pachash::StoreConfig::key_t {
+                return pachash::MurmurHash64(key);
             };
-            auto lengthEx = [&](const std::uint64_t &key) -> size_t {
+            auto lengthEx = [&](const std::string &key) -> size_t {
                 (void) key;
                 return averageLength;
             };
-            auto valueEx = [&](const std::uint64_t &key) -> const char * {
+            auto valueEx = [&](const std::string &key) -> const char * {
                 (void) key;
                 return emptyValuePointer;
             };
@@ -45,7 +43,8 @@ class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
         void query() override {
             std::tuple<size_t, size_t> accessDetails;
             for (size_t handled = 0; handled < numQueries; handled++) {
-                objectStore.findBlocksToAccess(&accessDetails, keys[rand() % N]);
+                pachash::StoreConfig::key_t key = pachash::MurmurHash64(keys[rand() % N]);
+                objectStore.findBlocksToAccess(&accessDetails, key);
             }
         }
 };
@@ -72,7 +71,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             size_t handled = 0;
             // Fill in-flight queue
             for (size_t i = 0; i < depth; i++) {
-                queryHandles[i]->key = keys[rand() % N];
+                queryHandles[i]->prepare(keys[rand() % N]);
                 objectStoreView->enqueueQuery(queryHandles[i]);
                 handled++;
             }
@@ -82,10 +81,8 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             while (handled < numQueries) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
-                    if (handle->resultPtr == nullptr) {
-                        throw std::logic_error("Did not find item");
-                    }
-                    handle->key = keys[rand() % N];
+                    assert(handle->resultPtr != nullptr);
+                    handle->prepare(keys[rand() % N]);
                     objectStoreView->enqueueQuery(handle);
                     handle = objectStoreView->peekAny();
                     handled++;
@@ -96,9 +93,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             // Collect remaining in-flight queries
             for (size_t i = 0; i < depth; i++) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
-                if (handle->resultPtr == nullptr) {
-                    throw std::logic_error("Did not find item");
-                }
+                assert(handle->resultPtr != nullptr);
                 handled++;
             }
         }

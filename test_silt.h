@@ -8,13 +8,10 @@
 
 class SiltComparisonItemBase : public StoreComparisonItem {
     public:
-        std::vector<std::uint64_t> keys;
         fawn::FawnDS_Combi* store;
 
         SiltComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
-            keys = generateRandomKeys(N);
-
             system("rm -rf /tmp/silt-test");
             system("mkdir -p /tmp/silt-test");
             auto* config = new fawn::Configuration("../siltConfig.xml");
@@ -34,9 +31,9 @@ class SiltComparisonItemBase : public StoreComparisonItem {
         }
 
         void construct() override {
-            for (uint64_t key : keys) {
+            for (std::string &key : keys) {
                 fawn::ConstRefValue value(emptyValuePointer, averageLength);
-                fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(&key), value);
+                fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(key), value);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Put("<<key<<") = "<<res<<std::endl;
             }
@@ -54,7 +51,7 @@ class SiltComparisonItem : public SiltComparisonItemBase {
             size_t handled = 0;
             while (handled < numQueries) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(&keys[rand() % keys.size()]), valueRead);
+                fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keys[rand() % keys.size()]), valueRead);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
                 handled++;
@@ -65,12 +62,9 @@ class SiltComparisonItem : public SiltComparisonItemBase {
 class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_SF_Ordered_Trie* sortedStore;
-        std::vector<std::uint64_t> keys;
 
         SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
-            keys = generateRandomKeys(N);
-
             system("rm -rf /tmp/silt-test-sorted");
             system("mkdir -p /tmp/silt-test-sorted");
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
@@ -127,9 +121,9 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             fawn::FawnDS_Return res = sorter->Create();
             assert(res == fawn::OK);
 
-            for (uint64_t key : keys) {
+            for (std::string &key : keys) {
                 fawn::ConstRefValue value(emptyValuePointer, averageLength);
-                res = sorter->Put(fawn::ConstRefValue(&key), value);
+                res = sorter->Put(fawn::ConstRefValue(key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
             sorter->Flush();
@@ -159,7 +153,7 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
             size_t handled = 0;
             while (handled < numQueries) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(&keys[rand() % keys.size()]), valueRead);
+                fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(keys[rand() % N]), valueRead);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
                 handled++;
@@ -177,7 +171,7 @@ class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreB
             size_t handled = 0;
             while (handled < numQueries) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(&keys[rand() % keys.size()]));
+                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keys[rand() % keys.size()]));
                 assert(res == fawn::FawnDS_Return::KEY_DELETED || res == fawn::KEY_NOT_FOUND);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
                 handled++;

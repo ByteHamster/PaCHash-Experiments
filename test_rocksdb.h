@@ -6,15 +6,12 @@
 
 class RocksDBComparisonItem : public StoreComparisonItem {
     public:
-        std::vector<std::uint64_t> keys;
         rocksdb::DB* db = nullptr;
         std::string filePath = "/tmp/rocksdb-test";
         rocksdb::Options options;
 
         RocksDBComparisonItem(size_t N, size_t averageLength, size_t numQueries) :
                 StoreComparisonItem("rocksdb", N, averageLength, numQueries) {
-            keys = generateRandomKeys(N);
-
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;
             table_options.no_block_cache = true;
@@ -43,8 +40,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
             rocksdb::WriteBatch writeBatch;
-            for (uint64_t keyUint : keys) {
-                rocksdb::Slice key(reinterpret_cast<const char *>(&keyUint), sizeof(uint64_t));
+            for (std::string &key : keys) {
                 writeBatch.Put(key, rocksdb::Slice(emptyValuePointer, averageLength));
             }
             db->Write(writeOptions, &writeBatch);
@@ -57,14 +53,12 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             size_t batchSize = 64;
             size_t numBatches = numQueries/batchSize;
             std::vector<rocksdb::PinnableSlice> values(batchSize);
-            std::vector<uint64_t> queryKeys(batchSize);
             std::vector<rocksdb::Slice> querySlices(batchSize);
             std::vector<rocksdb::Status> statuses(batchSize);
 
             for (size_t i = 0; i < numBatches; i++) {
                 for (size_t k = 0; k < batchSize; k++) {
-                    queryKeys.at(k) = keys.at(rand() % N);
-                    querySlices.at(k) = rocksdb::Slice(reinterpret_cast<const char *>(queryKeys.data() + k), sizeof(uint64_t));
+                    querySlices.at(k) = keys.at(rand() % N);
                 }
                 db->MultiGet(rocksdb::ReadOptions(),
                              db->DefaultColumnFamily(),

@@ -1,4 +1,3 @@
-#include "utils.h"
 #include "test_leveldb.h"
 #include "test_rocksdb.h"
 #include "test_silt.h"

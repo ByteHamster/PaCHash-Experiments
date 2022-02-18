@@ -1,7 +1,10 @@
+#pragma once
+
 #include <utility>
 #include <unistd.h>
-
-#pragma once
+#include <chrono>
+#include <iostream>
+#include <random>
 
 class StoreComparisonItem {
     public:
@@ -10,9 +13,11 @@ class StoreComparisonItem {
         size_t averageLength;
         size_t numQueries;
         const char *emptyValuePointer;
+        std::vector<std::string> keys;
 
         StoreComparisonItem(std::string method, size_t N, size_t averageLength, size_t numQueries)
                 : method(std::move(method)), N(N), averageLength(averageLength), numQueries(numQueries) {
+            keys = generateRandomKeys(N);
             emptyValuePointer = new char[averageLength];
         }
 
@@ -58,5 +63,19 @@ class StoreComparisonItem {
                       << " queriesPerSecond=" <<(double)numQueries*1000000.0/((double)queryTimeMicroseconds)
                       << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
                       << " construction=" << constructTimeMilliseconds << std::endl;
+        }
+
+        static std::vector<std::string> generateRandomKeys(size_t N) {
+            uint64_t seed = std::random_device{}();
+            std::cout<<"# Seed for input keys: "<<seed<<std::endl;
+            std::mt19937_64 generator(seed);
+            std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
+            std::vector<std::string> keys;
+            keys.reserve(N);
+            for (size_t i = 0; i < N; i++) {
+                uint64_t key = dist(generator);
+                keys.emplace_back(std::string((char *)&key, sizeof(uint64_t)));
+            }
+            return keys;
         }
 };

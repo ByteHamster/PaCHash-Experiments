@@ -7,7 +7,7 @@
 
 int main() {
     for (size_t N = 1e5; N <= 3e6; N += 1e5) {
-        for (size_t i = 0; i < 3; i++) {
+        for (size_t i = 0; i < 6; i++) {
             size_t averageLength = 256;
             size_t numQueries = 1e6;
 

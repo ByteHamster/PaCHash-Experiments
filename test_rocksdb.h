@@ -33,7 +33,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        ~RocksDBComparisonItem() {
+        ~RocksDBComparisonItem() override {
             db->Close();
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
@@ -42,11 +42,10 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         void construct() override {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
-            const char *value = static_cast<const char *>(malloc(averageLength));
             rocksdb::WriteBatch writeBatch;
             for (uint64_t keyUint : keys) {
                 rocksdb::Slice key(reinterpret_cast<const char *>(&keyUint), sizeof(uint64_t));
-                writeBatch.Put(key, rocksdb::Slice(value, averageLength));
+                writeBatch.Put(key, rocksdb::Slice(emptyValuePointer, averageLength));
             }
             db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());
@@ -73,19 +72,6 @@ class RocksDBComparisonItem : public StoreComparisonItem {
                              querySlices.data(),
                              values.data(),
                              statuses.data());
-
-                for (size_t k = 0; k < batchSize; k++) {
-                    //uint64_t keyUint = queryKeys.at(k);
-                    //std::string expected(randomObjectProvider.getValue(keyUint), randomObjectProvider.getLength(keyUint));
-                    //if (values.at(k).ToString() != expected) {
-                    //    std::cerr<<"got: "<<values.at(k).ToString()<<std::endl<<"exp: "<<expected<<std::endl;
-                    //    std::cerr<<statuses.at(k).ToString()<<std::endl;
-                    //}
-                    if (!statuses.at(k).ok()) {
-                        std::cerr<<statuses.at(k).ToString()<<std::endl;
-                        exit(1);
-                    }
-                }
             }
         }
 };

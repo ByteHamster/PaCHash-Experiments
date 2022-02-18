@@ -1,5 +1,7 @@
 #include <fawnds_combi.h>
 #include <fawnds_sf_ordered_trie.h>
+
+#include <utility>
 #include "fawnds.h"
 #include "configuration.h"
 #include "fawnds_factory.h"
@@ -10,7 +12,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
         fawn::FawnDS_Combi* store;
 
         SiltComparisonItemBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(name, N, averageLength, numQueries) {
+                StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
             keys = generateRandomKeys(N);
 
             system("rm -rf /tmp/silt-test");
@@ -25,16 +27,15 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             assert(res == fawn::FawnDS_Return::OK);
         }
 
-        ~SiltComparisonItemBase() {
+        ~SiltComparisonItemBase() override {
             store->Destroy();
             delete store;
             system("rm -r /tmp/silt-test");
         }
 
         void construct() override {
-            char *content = static_cast<char *>(malloc(averageLength));
             for (uint64_t key : keys) {
-                fawn::ConstRefValue value(content, averageLength);
+                fawn::ConstRefValue value(emptyValuePointer, averageLength);
                 fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(&key), value);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Put("<<key<<") = "<<res<<std::endl;
@@ -67,7 +68,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         std::vector<std::uint64_t> keys;
 
         SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t averageLength, size_t numQueries) :
-                StoreComparisonItem(name, N, averageLength, numQueries) {
+                StoreComparisonItem(std::move(name), N, averageLength, numQueries) {
             keys = generateRandomKeys(N);
 
             system("rm -rf /tmp/silt-test-sorted");
@@ -82,7 +83,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             assert(res == fawn::FawnDS_Return::OK);
         }
 
-        ~SiltComparisonItemSortedStoreBase() {
+        ~SiltComparisonItemSortedStoreBase() override {
             sortedStore->Destroy();
             delete sortedStore;
             system("rm -rf /tmp/silt-test-sorted");
@@ -126,10 +127,9 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             fawn::FawnDS_Return res = sorter->Create();
             assert(res == fawn::OK);
 
-            char *content = static_cast<char *>(malloc(averageLength));
             for (uint64_t key : keys) {
-                fawn::ConstRefValue value(content, averageLength);
-                fawn::FawnDS_Return res = sorter->Put(fawn::ConstRefValue(&key), value);
+                fawn::ConstRefValue value(emptyValuePointer, averageLength);
+                res = sorter->Put(fawn::ConstRefValue(&key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
             sorter->Flush();

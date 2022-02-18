@@ -15,7 +15,7 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             keys = generateRandomKeys(N);
         }
 
-        ~PaCHashComparisonItemBase() {
+        ~PaCHashComparisonItemBase() override {
             unlink(filename);
         }
 
@@ -27,10 +27,9 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
                 (void) key;
                 return averageLength;
             };
-            char *content = static_cast<char *>(malloc(averageLength));
-            auto valueEx = [content](const std::uint64_t &key) -> const char * {
+            auto valueEx = [&](const std::uint64_t &key) -> const char * {
                 (void) key;
-                return content;
+                return emptyValuePointer;
             };
             objectStore.writeToFile(keys.begin(), keys.end(), hashFunction, lengthEx, valueEx);
             objectStore.reloadFromFile();
@@ -53,51 +52,58 @@ class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
 
 class PaCHashComparisonItem : public PaCHashComparisonItemBase {
     public:
+        using ObjectStoreView = pachash::ObjectStoreView<pachash::PaCHashObjectStore<8>, pachash::UringIO>;
+        ObjectStoreView *objectStoreView = nullptr;
+        std::vector<pachash::QueryHandle*> queryHandles;
+        size_t depth = 128;
+
         PaCHashComparisonItem(size_t N, size_t averageLength, size_t numQueries)
             : PaCHashComparisonItemBase("pachash", N, averageLength, numQueries) {
         }
 
-        void query() override {
-            size_t depth = 128;
-            pachash::ObjectStoreView<pachash::PaCHashObjectStore<8>, pachash::UringIO> objectStoreView(objectStore, 0, depth);
-            std::vector<pachash::QueryHandle*> queryHandles;
+        void beforeQuery() override {
+            objectStoreView = new ObjectStoreView(objectStore, 0, depth);
             for (size_t i = 0; i < depth; i++) {
                 queryHandles.emplace_back(new pachash::QueryHandle(objectStore));
             }
+        }
 
+        void query() override {
             size_t handled = 0;
             // Fill in-flight queue
             for (size_t i = 0; i < depth; i++) {
                 queryHandles[i]->key = keys[rand() % N];
-                objectStoreView.enqueueQuery(queryHandles[i]);
+                objectStoreView->enqueueQuery(queryHandles[i]);
                 handled++;
             }
-            objectStoreView.submit();
+            objectStoreView->submit();
 
             // Submit new queries as old ones complete
             while (handled < numQueries) {
-                pachash::QueryHandle *handle = objectStoreView.awaitAny();
+                pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     if (handle->resultPtr == nullptr) {
                         throw std::logic_error("Did not find item");
                     }
                     handle->key = keys[rand() % N];
-                    objectStoreView.enqueueQuery(handle);
-                    handle = objectStoreView.peekAny();
+                    objectStoreView->enqueueQuery(handle);
+                    handle = objectStoreView->peekAny();
                     handled++;
                 } while (handle != nullptr);
-                objectStoreView.submit();
+                objectStoreView->submit();
             }
 
             // Collect remaining in-flight queries
             for (size_t i = 0; i < depth; i++) {
-                pachash::QueryHandle *handle = objectStoreView.awaitAny();
+                pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 if (handle->resultPtr == nullptr) {
                     throw std::logic_error("Did not find item");
                 }
                 handled++;
             }
+        }
 
+        void afterQuery() override {
             for (pachash::QueryHandle *handle : queryHandles) {
                 delete handle;
             }

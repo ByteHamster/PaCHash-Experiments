@@ -27,17 +27,16 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        ~LevelDBComparisonItem() {
+        ~LevelDBComparisonItem() override {
             delete db;
             leveldb::DestroyDB(filename, options);
         }
 
         void construct() override {
             leveldb::WriteBatch batch;
-            const char *value = static_cast<const char *>(malloc(averageLength));
             for (std::string &key : keys) {
                 leveldb::Slice keySlice(key.data(), sizeof(uint64_t));
-                leveldb::Slice valueSlice = leveldb::Slice(value, averageLength);
+                leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
                 batch.Put(keySlice, valueSlice);
             }
             leveldb::WriteOptions writeOptions;
@@ -78,7 +77,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             options.compression = leveldb::CompressionType::kNoCompression;
         }
 
-        ~LevelDBSingleTableComparisonItemBase() {
+        ~LevelDBSingleTableComparisonItemBase() override {
             leveldb::Env::Default()->DeleteFile(filename);
         }
 
@@ -88,11 +87,9 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             leveldb::Env::Default()->DeleteFile(filename);
             leveldb::Env::Default()->NewWritableFile(filename, &file);
             leveldb::TableBuilder tableBuilder(options, file);
-
-            const char *value = static_cast<const char *>(malloc(averageLength));
             for (std::string &key : keys) {
                 leveldb::Slice keySlice(key.data(), sizeof(uint64_t));
-                leveldb::Slice valueSlice = leveldb::Slice(value, averageLength);
+                leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, averageLength);
                 tableBuilder.Add(keySlice, valueSlice);
             }
             leveldb::Status status = tableBuilder.Finish();

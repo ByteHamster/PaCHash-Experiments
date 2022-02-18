@@ -11,7 +11,7 @@ class RecSplitComparisonItem : public StoreComparisonItem {
             keys = generateRandomStringKeys(N);
         }
 
-        ~RecSplitComparisonItem() {
+        ~RecSplitComparisonItem() override {
             delete recSplit;
         }
 

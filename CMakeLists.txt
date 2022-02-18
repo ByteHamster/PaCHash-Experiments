@@ -54,3 +54,7 @@ target_link_libraries(ObjectStoreComparison PUBLIC silt)
 add_subdirectory(external/pachash)
 target_compile_features(PaCHash INTERFACE cxx_std_20)
 target_link_libraries(ObjectStoreComparison PUBLIC PaCHash)
+
+add_library(sux INTERFACE)
+target_include_directories(sux INTERFACE external/sux)
+target_link_libraries(ObjectStoreComparison PRIVATE sux)

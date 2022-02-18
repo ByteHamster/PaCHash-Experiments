@@ -3,6 +3,7 @@
 #include "test_rocksdb.h"
 #include "test_silt.h"
 #include "test_pachash.h"
+#include "test_recsplit.h"
 
 int main() {
     for (size_t N = 1e5; N <= 3e6; N += 1e5) {
@@ -25,6 +26,7 @@ int main() {
             numQueries = 5e6;
             PaCHashMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
             LevelDBSingleTableMicroIndexComparisonItem(N, averageLength, numQueries).performBenchmark();
+            RecSplitComparisonItem(N, averageLength, numQueries).performBenchmark();
         }
     }
     return 0;

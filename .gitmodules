@@ -10,3 +10,6 @@
 [submodule "external/pachash"]
 	path = external/pachash
 	url = git@github.com:ByteHamster/PaCHash.git
+[submodule "external/sux"]
+	path = external/sux
+	url = git@github.com:vigna/sux.git

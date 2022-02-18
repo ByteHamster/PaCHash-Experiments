@@ -90,6 +90,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             }
             leveldb::Status status = tableBuilder.Finish();
             file->Close();
+            delete file;
             size = tableBuilder.FileSize();
         }
 };
@@ -113,6 +114,7 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
                 status = table->InternalGet(readOptions, keysQueryOrder[i], nullptr, handleResult);
                 assert(status.ok());
             }
+            delete raFile;
         }
 };
 
@@ -134,5 +136,7 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
             for (size_t i = 0; i < numQueries; i++) {
                 table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
             }
+            delete table;
+            delete raFile;
         }
 };

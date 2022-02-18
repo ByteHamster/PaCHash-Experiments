@@ -32,6 +32,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
 
         ~RocksDBComparisonItem() override {
             db->Close();
+            delete db;
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
         }

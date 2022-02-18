@@ -99,6 +99,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
         }
 
         void afterQuery() override {
+            delete objectStoreView;
             for (pachash::QueryHandle *handle : queryHandles) {
                 delete handle;
             }

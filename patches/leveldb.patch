@@ -1,5 +1,5 @@
 diff --git a/include/leveldb/table.h b/include/leveldb/table.h
-index a30e903..0ec759b 100644
+index a30e903..e2dd8a9 100644
 --- a/include/leveldb/table.h
 +++ b/include/leveldb/table.h
 @@ -58,7 +58,7 @@ class LEVELDB_EXPORT Table {
@@ -15,23 +15,25 @@ index a30e903..0ec759b 100644
                       void (*handle_result)(void* arg, const Slice& k,
                                             const Slice& v));
  
-+  void InternalGetIndexOnly(const ReadOptions&, const Slice& key);
++  Status InternalGetIndexOnly(const ReadOptions&, const Slice& key);
 +
    void ReadMeta(const Footer& footer);
    void ReadFilter(const Slice& filter_handle_value);
  
 diff --git a/table/table.cc b/table/table.cc
-index 29e835f..2c824c0 100644
+index 29e835f..edda9d7 100644
 --- a/table/table.cc
 +++ b/table/table.cc
-@@ -241,6 +241,12 @@ Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
+@@ -241,6 +241,14 @@ Status Table::InternalGet(const ReadOptions& options, const Slice& k, void* arg,
    return s;
  }
  
-+void Table::InternalGetIndexOnly(const ReadOptions& options, const Slice& k) {
++Status Table::InternalGetIndexOnly(const ReadOptions& options, const Slice& k) {
 +    Iterator* iiter = rep_->index_block->NewIterator(rep_->options.comparator);
 +    iiter->Seek(k);
++    Status status = iiter->status();
 +    delete iiter;
++    return status;
 +}
 +
  uint64_t Table::ApproximateOffsetOf(const Slice& key) const {

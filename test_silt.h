@@ -168,10 +168,8 @@ class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreB
         void query(std::vector<std::string> &keysQueryOrder) override {
             for (size_t i; i < numQueries; i++) {
                 fawn::Value valueRead;
-                fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keysQueryOrder[i]));
+                size_t res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keysQueryOrder[i]));
                 DO_NOT_OPTIMIZE(res);
-                assert(res == fawn::FawnDS_Return::KEY_DELETED || res == fawn::KEY_NOT_FOUND);
-                //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
             }
         }
 };

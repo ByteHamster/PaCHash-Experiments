@@ -95,6 +95,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             // Collect remaining in-flight queries
             for (size_t i = 0; i < depth; i++) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
+                DO_NOT_OPTIMIZE(handle->resultPtr);
                 assert(handle->resultPtr != nullptr);
                 handled++;
             }

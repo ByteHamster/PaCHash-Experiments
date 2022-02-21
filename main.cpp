@@ -3,6 +3,7 @@
 #include "test_silt.h"
 #include "test_pachash.h"
 #include "test_recsplit.h"
+#include "test_std_unordered_map.h"
 
 int main() {
     for (size_t N = 1e5; N <= 3e6; N += 1e5) {
@@ -26,6 +27,7 @@ int main() {
             PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
             LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
             RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();
+            StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();
         }
     }
     return 0;

@@ -19,7 +19,8 @@ class RecSplitComparisonItem : public StoreComparisonItem {
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             for (size_t i = 0; i < numQueries; i++) {
-                recSplit->operator()(keysQueryOrder[i]);
+                size_t result = recSplit->operator()(keysQueryOrder[i]);
+                DO_NOT_OPTIMIZE(result);
             }
         }
 };

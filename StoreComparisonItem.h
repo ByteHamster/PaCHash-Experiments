@@ -6,6 +6,8 @@
 #include <iostream>
 #include <random>
 
+#define DO_NOT_OPTIMIZE(value) asm volatile ("" : : "r,m"(value) : "memory")
+
 class StoreComparisonItem {
     private:
         std::string method;

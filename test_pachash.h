@@ -45,6 +45,7 @@ class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
             for (size_t i = 0; i < numQueries; i++) {
                 pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
                 objectStore.findBlocksToAccess(&accessDetails, key);
+                DO_NOT_OPTIMIZE(accessDetails);
             }
         }
 };
@@ -82,6 +83,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     assert(handle->resultPtr != nullptr);
+                    DO_NOT_OPTIMIZE(handle->resultPtr);
                     handle->prepare(keysQueryOrder[handled]);
                     objectStoreView->enqueueQuery(handle);
                     handle = objectStoreView->peekAny();

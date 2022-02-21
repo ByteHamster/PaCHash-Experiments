@@ -50,6 +50,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::Status status;
             for (size_t i = 0; i < numQueries; i++) {
                 status = db->Get(readOptions, keysQueryOrder[i], &result);
+                DO_NOT_OPTIMIZE(status);
                 assert(status.ok());
             }
         }
@@ -112,6 +113,7 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
                 status = table->InternalGet(readOptions, keysQueryOrder[i], nullptr, handleResult);
+                DO_NOT_OPTIMIZE(status);
                 assert(status.ok());
             }
             delete raFile;
@@ -134,7 +136,8 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
 
             leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
-                table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
+                status = table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
+                DO_NOT_OPTIMIZE(status);
             }
             delete table;
             delete raFile;

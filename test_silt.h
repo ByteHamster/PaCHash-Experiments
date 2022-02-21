@@ -51,6 +51,7 @@ class SiltComparisonItem : public SiltComparisonItemBase {
             for (size_t i = 0; i < numQueries; i++) {
                 fawn::Value valueRead;
                 fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
+                DO_NOT_OPTIMIZE(res);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
             }
@@ -151,6 +152,7 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
             for (size_t i; i < numQueries; i++) {
                 fawn::Value valueRead;
                 fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
+                DO_NOT_OPTIMIZE(res);
                 assert(res == fawn::FawnDS_Return::OK);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
             }
@@ -167,6 +169,7 @@ class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreB
             for (size_t i; i < numQueries; i++) {
                 fawn::Value valueRead;
                 fawn::FawnDS_Return res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keysQueryOrder[i]));
+                DO_NOT_OPTIMIZE(res);
                 assert(res == fawn::FawnDS_Return::KEY_DELETED || res == fawn::KEY_NOT_FOUND);
                 //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
             }

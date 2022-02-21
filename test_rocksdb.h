@@ -68,6 +68,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
                              querySlices.data(),
                              values.data(),
                              statuses.data());
+                DO_NOT_OPTIMIZE(statuses);
             }
         }
 };

@@ -4,10 +4,11 @@
 #include "test_pachash.h"
 #include "test_recsplit.h"
 #include "test_std_unordered_map.h"
+#include "test_separator.h"
 
 int main() {
-    for (size_t N = 1e5; N <= 3e6; N += 1e5) {
-        for (size_t i = 0; i < 6; i++) {
+    for (size_t N = 1e5; N <= 4e6; N += 2e5) {
+        for (size_t i = 0; i < 4; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;
 
@@ -16,6 +17,7 @@ int main() {
             LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();
             RocksDBComparisonItem(N, objectSize, numQueries).performBenchmark();
             PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();
+            SeparatorComparisonItem(N, objectSize, numQueries).performBenchmark();
 
             // Partial benchmark
             LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();
@@ -28,6 +30,7 @@ int main() {
             LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
             RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();
             StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();
+            SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
         }
     }
     return 0;

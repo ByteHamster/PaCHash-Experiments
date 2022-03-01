@@ -117,6 +117,7 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
                 assert(status.ok());
             }
             delete raFile;
+            delete table;
         }
 };
 

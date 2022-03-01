@@ -23,7 +23,7 @@ class StoreComparisonItem {
         }
 
         virtual ~StoreComparisonItem() {
-            delete emptyValuePointer;
+            delete[] emptyValuePointer;
         }
 
         virtual void beforeConstruct() { };

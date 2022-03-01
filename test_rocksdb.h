@@ -47,6 +47,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());
             db->Close();
+            delete db;
             rocksdb::DB::Open(options, filePath, &db);
         }
 

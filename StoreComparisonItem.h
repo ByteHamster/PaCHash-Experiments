@@ -44,10 +44,11 @@ class StoreComparisonItem {
             afterConstruct();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
 
-            std::cout<<method<<": Preparing Query"<<std::endl;
             std::vector<std::string> keysQueryOrder;
             keysQueryOrder.reserve(numQueries);
-            std::mt19937_64 generator(std::random_device{}());
+            uint64_t seed = std::random_device{}();
+            std::cout<<method<<": Preparing Query (seed: "<<seed<<")"<<std::endl;
+            std::mt19937_64 generator(seed);
             std::uniform_int_distribution<uint64_t> dist(0, N - 1);
             for (size_t i = 0; i < numQueries + 200; i++) {
                 keysQueryOrder.push_back(keys.at(dist(generator)));

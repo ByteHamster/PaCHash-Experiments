@@ -25,6 +25,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
         }
 
         ~SiltComparisonItemBase() override {
+            store->Close();
             store->Destroy();
             delete store;
             system("rm -r /tmp/silt-test");
@@ -77,6 +78,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         }
 
         ~SiltComparisonItemSortedStoreBase() override {
+            sortedStore->Close();
             sortedStore->Destroy();
             delete sortedStore;
             system("rm -rf /tmp/silt-test-sorted");

@@ -5,6 +5,7 @@
 #include "test_recsplit.h"
 #include "test_std_unordered_map.h"
 #include "test_separator.h"
+#include "test_chd.h"
 
 int main() {
     for (size_t N = 1e5; N <= 4e6; N += 2e5) {
@@ -29,6 +30,7 @@ int main() {
             PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
             LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
             RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();
+            ChdComparisonItem(N, objectSize, numQueries).performBenchmark();
             StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();
             SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
         }

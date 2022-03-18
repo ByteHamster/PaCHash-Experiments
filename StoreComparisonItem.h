@@ -26,7 +26,7 @@ class StoreComparisonItem {
             delete[] emptyValuePointer;
         }
 
-        virtual void beforeConstruct() { };
+        virtual void beforeConstruct(std::vector<std::string> &keys) { };
         virtual void construct(std::vector<std::string> &keys) = 0;
         virtual void afterConstruct() { };
 
@@ -37,7 +37,7 @@ class StoreComparisonItem {
         void performBenchmark() {
             std::vector<std::string> keys = generateRandomKeys(N);
             std::cout<<method<<": Construction"<<std::endl;
-            beforeConstruct();
+            beforeConstruct(keys);
             auto constructStart = std::chrono::high_resolution_clock::now();
             construct(keys);
             auto constructEnd = std::chrono::high_resolution_clock::now();
@@ -86,6 +86,9 @@ class StoreComparisonItem {
             keys.reserve(N);
             for (size_t i = 0; i < N; i++) {
                 uint64_t key = dist(generator);
+                while (strnlen(reinterpret_cast<const char *>(&key), sizeof(uint64_t)) != sizeof(uint64_t)) {
+                    key = dist(generator); // No null bytes in key
+                }
                 keys.emplace_back(std::string((char *)&key, sizeof(uint64_t)));
             }
             return keys;

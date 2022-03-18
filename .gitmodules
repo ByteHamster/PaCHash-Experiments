@@ -13,3 +13,6 @@
 [submodule "external/sux"]
 	path = external/sux
 	url = git@github.com:vigna/sux.git
+[submodule "external/cmph"]
+	path = external/cmph
+	url = git@github.com:bonitao/cmph.git

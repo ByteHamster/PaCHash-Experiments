@@ -8,6 +8,5 @@ Tested libraries:
 - LevelDB
 - SILT
 - PaCHash
-
-ToDo:
 - RecSplit
+- CHD

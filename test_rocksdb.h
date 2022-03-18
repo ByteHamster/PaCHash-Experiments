@@ -31,10 +31,12 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         }
 
         ~RocksDBComparisonItem() override {
+            db->Flush(rocksdb::FlushOptions());
             db->Close();
             delete db;
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
+            usleep(2000 * 1000); // Makes other methods segfault otherwise
         }
 
         void construct(std::vector<std::string> &keys) override {

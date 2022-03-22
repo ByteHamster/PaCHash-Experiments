@@ -19,6 +19,17 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
             leveldb::DestroyDB(filename, options);
+        }
+
+        ~LevelDBComparisonItem() override {
+            leveldb::DestroyDB(filename, options);
+        }
+
+        void beforeConstruct(std::vector<std::string> &keys) override {
+            beforeQuery();
+        }
+
+        void beforeQuery() override {
             leveldb::Status status = leveldb::DB::Open(options, filename, &db);
             if (!status.ok()) {
                 std::cerr<<status.ToString()<<std::endl;
@@ -26,9 +37,12 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        ~LevelDBComparisonItem() override {
+        void afterConstruct() override {
+            afterQuery();
+        }
+
+        void afterQuery() override {
             delete db;
-            leveldb::DestroyDB(filename, options);
         }
 
         void construct(std::vector<std::string> &keys) override {
@@ -40,8 +54,6 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::WriteOptions writeOptions;
             writeOptions.sync = true;
             db->Write(writeOptions, &batch);
-            delete db;
-            leveldb::Status status = leveldb::DB::Open(options, filename, &db);
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -68,6 +80,9 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         std::string filename = "/tmp/leveldb-test-single";
         size_t size = 0;
         leveldb::Options options;
+        leveldb::Table *table = nullptr;
+        leveldb::RandomAccessFile *raFile = nullptr;
+        leveldb::ReadOptions readOptions;
 
         LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
@@ -94,6 +109,18 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             delete file;
             size = tableBuilder.FileSize();
         }
+
+        void beforeQuery() override {
+            leveldb::Status status;
+            leveldb::Env::Default()->NewRandomAccessFile(filename, &raFile);
+            status = leveldb::Table::Open(options, raFile, size, &table);
+            assert(status.ok());
+        }
+
+        void afterQuery() override {
+            delete raFile;
+            delete table;
+        }
 };
 
 class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItemBase {
@@ -104,20 +131,11 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
-
-            leveldb::Table *table = nullptr;
-            leveldb::RandomAccessFile *raFile = nullptr;
-            leveldb::Env::Default()->NewRandomAccessFile(filename, &raFile);
-            status = leveldb::Table::Open(options, raFile, size, &table);
-
-            leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
                 status = table->InternalGet(readOptions, keysQueryOrder[i], nullptr, handleResult);
                 DO_NOT_OPTIMIZE(status);
                 assert(status.ok());
             }
-            delete raFile;
-            delete table;
         }
 };
 
@@ -129,18 +147,9 @@ class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComp
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
-
-            leveldb::Table *table = nullptr;
-            leveldb::RandomAccessFile *raFile = nullptr;
-            leveldb::Env::Default()->NewRandomAccessFile(filename, &raFile);
-            status = leveldb::Table::Open(options, raFile, size, &table);
-
-            leveldb::ReadOptions readOptions;
             for (size_t i = 0; i < numQueries; i++) {
                 status = table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
                 DO_NOT_OPTIMIZE(status);
             }
-            delete table;
-            delete raFile;
         }
 };

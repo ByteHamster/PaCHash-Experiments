@@ -19,10 +19,20 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             options.use_direct_reads = false;
             options.allow_mmap_reads = true;
             options.env = rocksdb::Env::Default();
-
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
+        }
 
+        ~RocksDBComparisonItem() override {
+            std::vector<rocksdb::ColumnFamilyDescriptor> x;
+            rocksdb::DestroyDB(filePath, options, x);
+        }
+
+        void beforeConstruct(std::vector<std::string> &keys) override {
+            beforeQuery();
+        }
+
+        void beforeQuery() override {
             rocksdb::Status status = rocksdb::DB::Open(options, filePath, &db);
             if (!status.ok()) {
                 std::cout<<status.ToString()<<std::endl;
@@ -30,12 +40,13 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        ~RocksDBComparisonItem() override {
-            db->Flush(rocksdb::FlushOptions());
+        void afterConstruct() override {
+            afterQuery();
+        }
+
+        void afterQuery() override {
             db->Close();
             delete db;
-            std::vector<rocksdb::ColumnFamilyDescriptor> x;
-            rocksdb::DestroyDB(filePath, options, x);
             usleep(2000 * 1000); // Makes other methods segfault otherwise
         }
 
@@ -48,9 +59,6 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
             db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());
-            db->Close();
-            delete db;
-            rocksdb::DB::Open(options, filePath, &db);
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {

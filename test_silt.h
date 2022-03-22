@@ -6,6 +6,12 @@
 #include "configuration.h"
 #include "fawnds_factory.h"
 
+/**
+ * Even though SILT implements an Open() call, that call does not actually open an existing database.
+ * It simply deletes all data and starts from scratch, which makes it effectively the same as Create().
+ * Even the Open() calls of the internal stages either delete the database or crash.
+ * That defeats the whole point of a database and makes SILT kind of useless...
+ */
 class SiltComparisonItemBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_Combi* store;
@@ -36,7 +42,6 @@ class SiltComparisonItemBase : public StoreComparisonItem {
                 fawn::ConstRefValue value(emptyValuePointer, objectSize);
                 fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(key), value);
                 assert(res == fawn::FawnDS_Return::OK);
-                //std::cout<<"Put("<<key<<") = "<<res<<std::endl;
             }
             store->Flush();
         }
@@ -54,7 +59,6 @@ class SiltComparisonItem : public SiltComparisonItemBase {
                 fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
                 DO_NOT_OPTIMIZE(res);
                 assert(res == fawn::FawnDS_Return::OK);
-                //std::cout<<"Get("<<key<<") = "<<res<<" "<<valueRead.str()<<std::endl;
             }
         }
 };

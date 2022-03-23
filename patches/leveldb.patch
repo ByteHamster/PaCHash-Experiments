@@ -40,15 +40,26 @@ index 29e835f..edda9d7 100644
    Iterator* index_iter =
        rep_->index_block->NewIterator(rep_->options.comparator);
 diff --git a/util/env_posix.cc b/util/env_posix.cc
-index 24b1c4c..a11f193 100644
+index 24b1c4c..00fda7f 100644
 --- a/util/env_posix.cc
 +++ b/util/env_posix.cc
-@@ -45,7 +45,7 @@ namespace {
+@@ -45,16 +45,16 @@ namespace {
  int g_open_read_only_file_limit = -1;
  
  // Up to 1000 mmap regions for 64-bit binaries; none for 32-bit.
 -constexpr const int kDefaultMmapLimit = (sizeof(void*) >= 8) ? 1000 : 0;
-+constexpr const int kDefaultMmapLimit = (sizeof(void*) >= 8) ? 1000 : 0; // Set to 0 to use posix read
++constexpr const int kDefaultMmapLimit = 0; // Disable memory mapping
  
  // Can be set using EnvPosixTestHelper::SetReadOnlyMMapLimit().
  int g_mmap_limit = kDefaultMmapLimit;
+ 
+ // Common flags defined for all posix open operations
+ #if defined(HAVE_O_CLOEXEC)
+-constexpr const int kOpenBaseFlags = O_CLOEXEC;
++constexpr const int kOpenBaseFlags = O_CLOEXEC | O_DIRECT;
+ #else
+-constexpr const int kOpenBaseFlags = 0;
++constexpr const int kOpenBaseFlags = O_DIRECT;
+ #endif  // defined(HAVE_O_CLOEXEC)
+ 
+ constexpr const size_t kWritableFileBufferSize = 65536;

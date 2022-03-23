@@ -5,7 +5,7 @@
 
 class SeparatorComparisonItemBase : public StoreComparisonItem {
     public:
-        const char* filename = "/tmp/separator-test";
+        const char* filename = "/data02/hplehmann/separator-test";
         pachash::SeparatorObjectStore<6> objectStore;
 
         SeparatorComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)

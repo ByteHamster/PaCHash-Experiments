@@ -15,7 +15,7 @@
 		<type>file</type>
 		<id></id>
 		<data-len></data-len>
-		<use-buffered-io-only>1</use-buffered-io-only>
-		<file>/tmp/silt-test-sorted/store</file>
+		<use-buffered-io-only>0</use-buffered-io-only>
+		<file>/data02/hplehmann/silt-test-sorted/store</file>
 	</datastore>
 </fawnds>

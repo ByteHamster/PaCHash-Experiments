@@ -7,7 +7,7 @@
 class RocksDBComparisonItem : public StoreComparisonItem {
     public:
         rocksdb::DB* db = nullptr;
-        std::string filePath = "/tmp/rocksdb-test";
+        std::string filePath = "/data02/hplehmann/rocksdb-test";
         rocksdb::Options options;
 
         RocksDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :

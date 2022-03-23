@@ -5,7 +5,7 @@
 
 class PaCHashComparisonItemBase : public StoreComparisonItem {
     public:
-        const char* filename = "/tmp/pachash-test";
+        const char* filename = "/data02/hplehmann/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
 
         PaCHashComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)

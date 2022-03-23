@@ -11,7 +11,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
     public:
         leveldb::Options options;
         leveldb::DB *db = nullptr;
-        const std::string filename = "/tmp/leveldb-test";
+        const std::string filename = "/data02/hplehmann/leveldb-test";
 
         LevelDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem("leveldb", N, objectSize, numQueries) {
@@ -77,7 +77,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             (void) value;
         }
 
-        std::string filename = "/tmp/leveldb-test-single";
+        std::string filename = "/data02/hplehmann/leveldb-test-single";
         size_t size = 0;
         leveldb::Options options;
         leveldb::Table *table = nullptr;

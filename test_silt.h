@@ -18,8 +18,8 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
         SiltComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
-            system("rm -rf /tmp/silt-test");
-            system("mkdir -p /tmp/silt-test");
+            system("rm -rf /data02/hplehmann/silt-test");
+            system("mkdir -p /data02/hplehmann/silt-test");
             auto* config = new fawn::Configuration("../siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
@@ -34,7 +34,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             store->Close();
             store->Destroy();
             delete store;
-            system("rm -r /tmp/silt-test");
+            system("rm -r /data02/hplehmann/silt-test");
         }
 
         void construct(std::vector<std::string> &keys) override {
@@ -69,8 +69,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
         SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
-            system("rm -rf /tmp/silt-test-sorted");
-            system("mkdir -p /tmp/silt-test-sorted");
+            system("rm -rf /data02/hplehmann/silt-test-sorted");
+            system("mkdir -p /data02/hplehmann/silt-test-sorted");
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
@@ -85,7 +85,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             sortedStore->Close();
             sortedStore->Destroy();
             delete sortedStore;
-            system("rm -rf /tmp/silt-test-sorted");
+            system("rm -rf /data02/hplehmann/silt-test-sorted");
         }
 
         void construct(std::vector<std::string> &keys) override {

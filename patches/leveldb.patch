@@ -40,10 +40,10 @@ index 29e835f..edda9d7 100644
    Iterator* index_iter =
        rep_->index_block->NewIterator(rep_->options.comparator);
 diff --git a/util/env_posix.cc b/util/env_posix.cc
-index 24b1c4c..00fda7f 100644
+index 24b1c4c..17b37f1 100644
 --- a/util/env_posix.cc
 +++ b/util/env_posix.cc
-@@ -45,16 +45,16 @@ namespace {
+@@ -45,14 +45,14 @@ namespace {
  int g_open_read_only_file_limit = -1;
  
  // Up to 1000 mmap regions for 64-bit binaries; none for 32-bit.
@@ -56,10 +56,7 @@ index 24b1c4c..00fda7f 100644
  // Common flags defined for all posix open operations
  #if defined(HAVE_O_CLOEXEC)
 -constexpr const int kOpenBaseFlags = O_CLOEXEC;
-+constexpr const int kOpenBaseFlags = O_CLOEXEC | O_DIRECT;
++constexpr const int kOpenBaseFlags = O_CLOEXEC; // O_DIRECT does not work because writes rely on small lengths
  #else
--constexpr const int kOpenBaseFlags = 0;
-+constexpr const int kOpenBaseFlags = O_DIRECT;
+ constexpr const int kOpenBaseFlags = 0;
  #endif  // defined(HAVE_O_CLOEXEC)
- 
- constexpr const size_t kWritableFileBufferSize = 65536;

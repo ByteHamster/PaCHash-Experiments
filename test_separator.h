@@ -30,7 +30,7 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
                 return emptyValuePointer;
             };
             objectStore.writeToFile(keys.begin(), keys.end(), hashFunction, lengthEx, valueEx);
-            objectStore.reloadFromFile();
+            objectStore.buildIndex();
         }
 };
 

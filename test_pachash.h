@@ -30,7 +30,7 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
                 return emptyValuePointer;
             };
             objectStore.writeToFile(keys.begin(), keys.end(), hashFunction, lengthEx, valueEx);
-            objectStore.reloadFromFile();
+            objectStore.buildIndex();
         }
 };
 
@@ -44,7 +44,7 @@ class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
             std::tuple<size_t, size_t> accessDetails;
             for (size_t i = 0; i < numQueries; i++) {
                 pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
-                objectStore.findBlocksToAccess(&accessDetails, key);
+                objectStore.index->locate(objectStore.key2bin(key), accessDetails);
                 DO_NOT_OPTIMIZE(accessDetails);
             }
         }

@@ -17,6 +17,10 @@ class ChdComparisonItem : public StoreComparisonItem {
             cmph_destroy(mphf);
         }
 
+        size_t externalSpaceUsage() override {
+            return 0;
+        }
+
         void beforeConstruct(std::vector<std::string> &keys) override {
             for (size_t i = 0; i < keys.size(); i++) {
                 convertedInput[i] = keys.at(i).data();

@@ -8,6 +8,10 @@ class StdUnorderedMapComparisonItem : public StoreComparisonItem {
                 StoreComparisonItem("unordered_map", N, objectSize, numQueries) {
         }
 
+        size_t externalSpaceUsage() override {
+            return 0;
+        }
+
         void construct(std::vector<std::string> &keys) override {
             map.reserve(keys.size());
             for (std::string &key : keys) {

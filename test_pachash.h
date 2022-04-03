@@ -17,6 +17,10 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             unlink(filename);
         }
 
+        size_t externalSpaceUsage() override {
+            return fileSize(filename);
+        }
+
         void construct(std::vector<std::string> &keys) override {
             auto hashFunction = [](const std::string &key) -> pachash::StoreConfig::key_t {
                 return pachash::MurmurHash64(key);

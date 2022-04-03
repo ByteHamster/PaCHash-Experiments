@@ -15,11 +15,12 @@
 class SiltComparisonItemBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_Combi* store;
+        std::string filename = "/data02/hplehmann/silt-test";
 
         SiltComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
-            system("rm -rf /data02/hplehmann/silt-test");
-            system("mkdir -p /data02/hplehmann/silt-test");
+            system(("rm -rf " + filename).c_str());
+            system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
@@ -34,7 +35,11 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             store->Close();
             store->Destroy();
             delete store;
-            system("rm -r /data02/hplehmann/silt-test");
+            system(("rm -r " + filename).c_str());
+        }
+
+        size_t externalSpaceUsage() override {
+            return directorySize(filename.c_str());
         }
 
         void construct(std::vector<std::string> &keys) override {
@@ -66,11 +71,12 @@ class SiltComparisonItem : public SiltComparisonItemBase {
 class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_SF_Ordered_Trie* sortedStore;
+        std::string filename = "/data02/hplehmann/silt-test-sorted";
 
         SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
-            system("rm -rf /data02/hplehmann/silt-test-sorted");
-            system("mkdir -p /data02/hplehmann/silt-test-sorted");
+            system(("rm -rf " + filename).c_str());
+            system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
@@ -85,7 +91,11 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             sortedStore->Close();
             sortedStore->Destroy();
             delete sortedStore;
-            system("rm -rf /data02/hplehmann/silt-test-sorted");
+            system(("rm -rf " + filename).c_str());
+        }
+
+        size_t externalSpaceUsage() override {
+            return directorySize(filename.c_str());
         }
 
         void construct(std::vector<std::string> &keys) override {
@@ -118,7 +128,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
             if (sorter_config->CreateNodeAndAppend("temp-file", ".") != 0)
                 assert(false);
-            if (sorter_config->SetStringValue("temp-file", "/tmp/silt-test-sorted") != 0)
+            if (sorter_config->SetStringValue("temp-file", filename) != 0)
                 assert(false);
 
             fawn::FawnDS* sorter = fawn::FawnDS_Factory::New(sorter_config);

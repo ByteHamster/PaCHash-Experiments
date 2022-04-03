@@ -5,8 +5,25 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <filesystem>
 
 #define DO_NOT_OPTIMIZE(value) asm volatile ("" : : "r,m"(value) : "memory")
+
+std::size_t directorySize(const char *name) {
+    const std::filesystem::path& directory(name);
+    std::size_t size{ 0 };
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(directory)) {
+        if (entry.is_regular_file() && !entry.is_symlink()) {
+            size += entry.file_size();
+        }
+    }
+    return size;
+}
+
+std::size_t fileSize(const char *name) {
+    std::filesystem::path file(name);
+    return std::filesystem::file_size(file);
+}
 
 class StoreComparisonItem {
     private:
@@ -33,6 +50,8 @@ class StoreComparisonItem {
         virtual void beforeQuery() { };
         virtual void query(std::vector<std::string> &keysQueryOrder) = 0;
         virtual void afterQuery() { };
+
+        virtual size_t externalSpaceUsage() = 0;
 
         void performBenchmark() {
             std::vector<std::string> keys = generateRandomKeys(N);
@@ -71,7 +90,9 @@ class StoreComparisonItem {
                       << " timeMs=" << queryTimeMicroseconds / 1000
                       << " queriesPerSecond=" <<(double)numQueries*1000000.0/((double)queryTimeMicroseconds)
                       << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
-                      << " construction=" << constructTimeMilliseconds << std::endl;
+                      << " construction=" << constructTimeMilliseconds
+                      << " externalSpace=" << externalSpaceUsage()
+                      << std::endl;
             usleep(1000*1000);
         }
 

@@ -25,6 +25,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::DestroyDB(filename, options);
         }
 
+        size_t externalSpaceUsage() override {
+            return directorySize(filename.c_str());
+        }
+
         void beforeConstruct(std::vector<std::string> &keys) override {
             beforeQuery();
         }
@@ -92,6 +96,10 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
 
         ~LevelDBSingleTableComparisonItemBase() override {
             leveldb::Env::Default()->DeleteFile(filename);
+        }
+
+        size_t externalSpaceUsage() override {
+            return fileSize(filename.c_str());
         }
 
         void construct(std::vector<std::string> &keys) override {

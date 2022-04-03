@@ -13,6 +13,10 @@ class RecSplitComparisonItem : public StoreComparisonItem {
             delete recSplit;
         }
 
+        size_t externalSpaceUsage() override {
+            return 0;
+        }
+
         void construct(std::vector<std::string> &keys) override {
             recSplit = new sux::function::RecSplit<8>(keys, 2000);
         }

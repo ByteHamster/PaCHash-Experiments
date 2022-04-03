@@ -28,6 +28,10 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             rocksdb::DestroyDB(filePath, options, x);
         }
 
+        size_t externalSpaceUsage() override {
+            return directorySize(filePath.c_str());
+        }
+
         void beforeConstruct(std::vector<std::string> &keys) override {
             beforeQuery();
         }

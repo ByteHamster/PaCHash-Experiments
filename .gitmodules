@@ -16,3 +16,6 @@
 [submodule "external/cmph"]
 	path = external/cmph
 	url = git@github.com:bonitao/cmph.git
+[submodule "external/malloc_count"]
+	path = external/malloc_count
+	url = git@github.com:ByteHamster/malloc_count.git

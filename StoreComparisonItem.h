@@ -6,6 +6,7 @@
 #include <iostream>
 #include <random>
 #include <filesystem>
+#include <malloc_count.h>
 
 #define DO_NOT_OPTIMIZE(value) asm volatile ("" : : "r,m"(value) : "memory")
 
@@ -57,9 +58,11 @@ class StoreComparisonItem {
             std::vector<std::string> keys = generateRandomKeys(N);
             std::cout<<method<<": Construction"<<std::endl;
             beforeConstruct(keys);
+            long allocationsBeforeConstruction = 0; // static_cast<long>(malloc_count_current());
             auto constructStart = std::chrono::high_resolution_clock::now();
             construct(keys);
             auto constructEnd = std::chrono::high_resolution_clock::now();
+            long allocationsAfterConstruction = 0; // static_cast<long>(malloc_count_current());
             afterConstruct();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
 
@@ -92,6 +95,7 @@ class StoreComparisonItem {
                       << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
                       << " construction=" << constructTimeMilliseconds
                       << " externalSpace=" << externalSpaceUsage()
+                      << " internalSpace=" << (allocationsAfterConstruction - allocationsBeforeConstruction)
                       << std::endl;
             usleep(1000*1000);
         }

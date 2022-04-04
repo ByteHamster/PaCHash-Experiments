@@ -21,22 +21,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             options.env = rocksdb::Env::Default();
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
-        }
 
-        ~RocksDBComparisonItem() override {
-            std::vector<rocksdb::ColumnFamilyDescriptor> x;
-            rocksdb::DestroyDB(filePath, options, x);
-        }
-
-        size_t externalSpaceUsage() override {
-            return directorySize(filePath.c_str());
-        }
-
-        void beforeConstruct(std::vector<std::string> &keys) override {
-            beforeQuery();
-        }
-
-        void beforeQuery() override {
             rocksdb::Status status = rocksdb::DB::Open(options, filePath, &db);
             if (!status.ok()) {
                 std::cout<<status.ToString()<<std::endl;
@@ -44,14 +29,15 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        void afterConstruct() override {
-            afterQuery();
-        }
-
-        void afterQuery() override {
+        ~RocksDBComparisonItem() override {
             db->Close();
             delete db;
-            usleep(2000 * 1000); // Makes other methods segfault otherwise
+            std::vector<rocksdb::ColumnFamilyDescriptor> x;
+            rocksdb::DestroyDB(filePath, options, x);
+        }
+
+        size_t externalSpaceUsage() override {
+            return directorySize(filePath.c_str());
         }
 
         void construct(std::vector<std::string> &keys) override {

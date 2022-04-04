@@ -3,17 +3,15 @@
 class ChdComparisonItem : public StoreComparisonItem {
     public:
         cmph_t *mphf = nullptr;
-        char **convertedInput;
+        char **convertedInput = nullptr;
         size_t kPerfect;
 
         ChdComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem("cmph", N, objectSize, numQueries) {
-            convertedInput = new char*[N];
             kPerfect = 4096 / objectSize;
         }
 
         ~ChdComparisonItem() override {
-            delete[] convertedInput;
             cmph_destroy(mphf);
         }
 
@@ -22,6 +20,7 @@ class ChdComparisonItem : public StoreComparisonItem {
         }
 
         void beforeConstruct(std::vector<std::string> &keys) override {
+            convertedInput = new char*[N];
             for (size_t i = 0; i < keys.size(); i++) {
                 convertedInput[i] = keys.at(i).data();
             }
@@ -39,6 +38,7 @@ class ChdComparisonItem : public StoreComparisonItem {
         }
 
         void afterConstruct() override {
+            delete[] convertedInput;
             if (mphf == nullptr) {
                 throw std::logic_error("Could not construct");
             }

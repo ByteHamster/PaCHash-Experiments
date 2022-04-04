@@ -19,21 +19,6 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
             leveldb::DestroyDB(filename, options);
-        }
-
-        ~LevelDBComparisonItem() override {
-            leveldb::DestroyDB(filename, options);
-        }
-
-        size_t externalSpaceUsage() override {
-            return directorySize(filename.c_str());
-        }
-
-        void beforeConstruct(std::vector<std::string> &keys) override {
-            beforeQuery();
-        }
-
-        void beforeQuery() override {
             leveldb::Status status = leveldb::DB::Open(options, filename, &db);
             if (!status.ok()) {
                 std::cerr<<status.ToString()<<std::endl;
@@ -41,12 +26,13 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             }
         }
 
-        void afterConstruct() override {
-            afterQuery();
+        ~LevelDBComparisonItem() override {
+            delete db;
+            leveldb::DestroyDB(filename, options);
         }
 
-        void afterQuery() override {
-            delete db;
+        size_t externalSpaceUsage() override {
+            return directorySize(filename.c_str());
         }
 
         void construct(std::vector<std::string> &keys) override {
@@ -95,6 +81,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         }
 
         ~LevelDBSingleTableComparisonItemBase() override {
+            delete raFile;
+            delete table;
             leveldb::Env::Default()->DeleteFile(filename);
         }
 
@@ -118,16 +106,10 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             size = tableBuilder.FileSize();
         }
 
-        void beforeQuery() override {
-            leveldb::Status status;
+        void afterConstruct() override {
             leveldb::Env::Default()->NewRandomAccessFile(filename, &raFile);
-            status = leveldb::Table::Open(options, raFile, size, &table);
+            leveldb::Status status = leveldb::Table::Open(options, raFile, size, &table);
             assert(status.ok());
-        }
-
-        void afterQuery() override {
-            delete raFile;
-            delete table;
         }
 };
 

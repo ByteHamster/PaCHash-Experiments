@@ -12,27 +12,34 @@ int main() {
         for (size_t i = 0; i < 4; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;
+            #ifdef MALLOC_COUNT
+            numQueries = 100; // No need to do many queries
+            #endif
 
             // Full data store
-            SiltComparisonItem(N, objectSize, numQueries).performBenchmark();
-            LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();
-            RocksDBComparisonItem(N, objectSize, numQueries).performBenchmark();
-            PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();
-            SeparatorComparisonItem(N, objectSize, numQueries).performBenchmark();
+            {SiltComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {RocksDBComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {SeparatorComparisonItem(N, objectSize, numQueries).performBenchmark();}
 
             // Partial benchmark
-            LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();
-            SiltComparisonItemSortedStore(N, objectSize, numQueries).performBenchmark();
+            {LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {SiltComparisonItemSortedStore(N, objectSize, numQueries).performBenchmark();}
 
             // Microbenchmark
-            SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();
-            numQueries = 5e6;
-            PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
-            LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
-            RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();
-            ChdComparisonItem(N, objectSize, numQueries).performBenchmark();
-            StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();
-            SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();
+            {SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();}
+            numQueries = numQueries * 5;
+            {PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {ChdComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
+
+            #ifdef MALLOC_COUNT
+            break; // One iteration is enough
+            #endif
         }
     }
     return 0;

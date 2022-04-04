@@ -6,7 +6,10 @@
 #include <iostream>
 #include <random>
 #include <filesystem>
+
+#ifdef MALLOC_COUNT
 #include <malloc_count.h>
+#endif
 
 #define DO_NOT_OPTIMIZE(value) asm volatile ("" : : "r,m"(value) : "memory")
 
@@ -34,10 +37,14 @@ class StoreComparisonItem {
         size_t objectSize;
         size_t numQueries;
         const char *emptyValuePointer;
+        size_t allocationsBeginning = 0;
 
         StoreComparisonItem(std::string method, size_t N, size_t objectSize, size_t numQueries)
                 : method(std::move(method)), N(N), objectSize(objectSize), numQueries(numQueries) {
             emptyValuePointer = new char[objectSize];
+            #ifdef MALLOC_COUNT
+            allocationsBeginning = malloc_count_current();
+            #endif
         }
 
         virtual ~StoreComparisonItem() {
@@ -58,11 +65,9 @@ class StoreComparisonItem {
             std::vector<std::string> keys = generateRandomKeys(N);
             std::cout<<method<<": Construction"<<std::endl;
             beforeConstruct(keys);
-            long allocationsBeforeConstruction = 0; // static_cast<long>(malloc_count_current());
             auto constructStart = std::chrono::high_resolution_clock::now();
             construct(keys);
             auto constructEnd = std::chrono::high_resolution_clock::now();
-            long allocationsAfterConstruction = 0; // static_cast<long>(malloc_count_current());
             afterConstruct();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
 
@@ -75,15 +80,30 @@ class StoreComparisonItem {
             for (size_t i = 0; i < numQueries + 200; i++) {
                 keysQueryOrder.push_back(keys.at(dist(generator)));
             }
+            #ifndef MALLOC_COUNT
             usleep(1000*1000);
+            #endif
 
             std::cout<<method<<": Query"<<std::endl;
             beforeQuery();
             auto queryStart = std::chrono::high_resolution_clock::now();
             query(keysQueryOrder);
             auto queryEnd = std::chrono::high_resolution_clock::now();
-            afterQuery();
             long queryTimeMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(queryEnd - queryStart).count();
+            afterQuery();
+
+            keys.clear();
+            keys.shrink_to_fit();
+            keysQueryOrder.clear();
+            keysQueryOrder.shrink_to_fit();
+            size_t allocationsEnd = 0;
+            #ifdef MALLOC_COUNT
+            allocationsEnd = malloc_count_current();
+            #endif
+            size_t spaceUsageInternal = allocationsEnd - allocationsBeginning;
+            if (allocationsBeginning > allocationsEnd) {
+                spaceUsageInternal = 0; // What?!
+            }
 
             std::cout << "RESULT"
                       << " method=" << method
@@ -95,9 +115,11 @@ class StoreComparisonItem {
                       << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
                       << " construction=" << constructTimeMilliseconds
                       << " externalSpace=" << externalSpaceUsage()
-                      << " internalSpace=" << (allocationsAfterConstruction - allocationsBeforeConstruction)
+                      << " internalSpace=" <<spaceUsageInternal
                       << std::endl;
+            #ifndef MALLOC_COUNT
             usleep(1000*1000);
+            #endif
         }
 
     private:

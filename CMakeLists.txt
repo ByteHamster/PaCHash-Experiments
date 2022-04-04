@@ -64,8 +64,3 @@ list(FILTER cmphSources EXCLUDE REGEX ".*cmph/src/(bdz_gen_lookup_table|bm_numbe
 add_library(Cmph SHARED ${cmphSources})
 target_include_directories(Cmph PUBLIC external/cmph/src)
 target_link_libraries(ObjectStoreComparison PRIVATE Cmph)
-
-add_library(malloc_count SHARED external/malloc_count/malloc_count.c)
-target_include_directories(malloc_count PUBLIC external/malloc_count)
-target_link_libraries(ObjectStoreComparison PRIVATE malloc_count)
-target_compile_definitions(ObjectStoreComparison PRIVATE MALLOC_COUNT=1)

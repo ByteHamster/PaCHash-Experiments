@@ -12,9 +12,6 @@ int main() {
         for (size_t i = 0; i < 4; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;
-            #ifdef MALLOC_COUNT
-            numQueries = 100; // No need to do many queries
-            #endif
 
             // Full data store
             {SiltComparisonItem(N, objectSize, numQueries).performBenchmark();}
@@ -36,10 +33,6 @@ int main() {
             {ChdComparisonItem(N, objectSize, numQueries).performBenchmark();}
             {StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();}
             {SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
-
-            #ifdef MALLOC_COUNT
-            break; // One iteration is enough
-            #endif
         }
     }
     return 0;

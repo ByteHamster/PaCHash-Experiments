@@ -6,10 +6,7 @@
 #include <iostream>
 #include <random>
 #include <filesystem>
-
-#ifdef MALLOC_COUNT
-#include <malloc_count.h>
-#endif
+#include <malloc.h>
 
 #define DO_NOT_OPTIMIZE(value) asm volatile ("" : : "r,m"(value) : "memory")
 
@@ -42,9 +39,7 @@ class StoreComparisonItem {
         StoreComparisonItem(std::string method, size_t N, size_t objectSize, size_t numQueries)
                 : method(std::move(method)), N(N), objectSize(objectSize), numQueries(numQueries) {
             emptyValuePointer = new char[objectSize];
-            #ifdef MALLOC_COUNT
-            allocationsBeginning = malloc_count_current();
-            #endif
+            allocationsBeginning = mallinfo2().uordblks;
         }
 
         virtual ~StoreComparisonItem() {
@@ -80,9 +75,7 @@ class StoreComparisonItem {
             for (size_t i = 0; i < numQueries + 200; i++) {
                 keysQueryOrder.push_back(keys.at(dist(generator)));
             }
-            #ifndef MALLOC_COUNT
             usleep(1000*1000);
-            #endif
 
             std::cout<<method<<": Query"<<std::endl;
             beforeQuery();
@@ -96,14 +89,7 @@ class StoreComparisonItem {
             keys.shrink_to_fit();
             keysQueryOrder.clear();
             keysQueryOrder.shrink_to_fit();
-            size_t allocationsEnd = 0;
-            #ifdef MALLOC_COUNT
-            allocationsEnd = malloc_count_current();
-            #endif
-            size_t spaceUsageInternal = allocationsEnd - allocationsBeginning;
-            if (allocationsBeginning > allocationsEnd) {
-                spaceUsageInternal = 0; // What?!
-            }
+            size_t allocationsEnd = mallinfo2().uordblks;
 
             std::cout << "RESULT"
                       << " method=" << method
@@ -115,11 +101,9 @@ class StoreComparisonItem {
                       << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
                       << " construction=" << constructTimeMilliseconds
                       << " externalSpace=" << externalSpaceUsage()
-                      << " internalSpace=" <<spaceUsageInternal
+                      << " internalSpace=" << (allocationsEnd - allocationsBeginning)
                       << std::endl;
-            #ifndef MALLOC_COUNT
             usleep(1000*1000);
-            #endif
         }
 
     private:

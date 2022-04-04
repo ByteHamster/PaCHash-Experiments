@@ -72,6 +72,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_SF_Ordered_Trie* sortedStore;
         std::string filename = "/data02/hplehmann/silt-test-sorted";
+        fawn::FawnDS* sorter = nullptr;
 
         SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
@@ -98,7 +99,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             return directorySize(filename.c_str());
         }
 
-        void construct(std::vector<std::string> &keys) override {
+        void beforeConstruct(std::vector<std::string> &keys) override {
             fawn::Configuration *sorter_config = new fawn::Configuration();
 
             char buf[1024];
@@ -131,11 +132,14 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             if (sorter_config->SetStringValue("temp-file", filename) != 0)
                 assert(false);
 
-            fawn::FawnDS* sorter = fawn::FawnDS_Factory::New(sorter_config);
+            sorter = fawn::FawnDS_Factory::New(sorter_config);
             assert(sorter);
             fawn::FawnDS_Return res = sorter->Create();
             assert(res == fawn::OK);
+        }
 
+        void construct(std::vector<std::string> &keys) override {
+            fawn::FawnDS_Return res;
             for (std::string &key : keys) {
                 fawn::ConstRefValue value(emptyValuePointer, objectSize);
                 res = sorter->Put(fawn::ConstRefValue(key), value);
@@ -152,9 +156,12 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
                 assert(ret == fawn::OK);
                 it_m++;
             }
+            sortedStore->Flush();
+        }
+
+        void afterConstruct() override {
             sorter->Destroy();
             delete sorter;
-            sortedStore->Flush();
         }
 };
 

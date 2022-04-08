@@ -8,7 +8,7 @@
 #include "test_chd.h"
 
 int main() {
-    for (size_t N = 1e5; N <= 4e6; N += 2e5) {
+    for (size_t N = 3e5; N <= 45e5; N += 3e5) {
         for (size_t i = 0; i < 4; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;

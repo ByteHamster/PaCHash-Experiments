@@ -83,6 +83,7 @@ class StoreComparisonItem {
             query(keysQueryOrder);
             auto queryEnd = std::chrono::high_resolution_clock::now();
             long queryTimeMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>(queryEnd - queryStart).count();
+            double queryTimeSeconds = (double)queryTimeMicroseconds / (double)1e6;
             afterQuery();
 
             keys.clear();
@@ -95,13 +96,12 @@ class StoreComparisonItem {
                       << " method=" << method
                       << " objectSize=" << objectSize
                       << " numObjects=" << N
-                      << " numQueries=" <<numQueries
-                      << " timeMs=" << queryTimeMicroseconds / 1000
-                      << " queriesPerSecond=" <<(double)numQueries*1000000.0/((double)queryTimeMicroseconds)
-                      << " perObject=" << (((double)queryTimeMicroseconds / (double)numQueries) * 1000)
-                      << " construction=" << constructTimeMilliseconds
-                      << " externalSpace=" << externalSpaceUsage()
-                      << " internalSpace=" << (allocationsEnd - allocationsBeginning)
+                      << " numQueries=" << numQueries
+                      << " queryTimeMs=" << 1000 * queryTimeSeconds
+                      << " queriesPerSecond=" << (double)numQueries / queryTimeSeconds
+                      << " constructionTimeMs=" << constructTimeMilliseconds
+                      << " externalSpaceBytes=" << externalSpaceUsage()
+                      << " internalSpaceBytes=" << (allocationsEnd - allocationsBeginning)
                       << std::endl;
             usleep(1000*1000);
         }

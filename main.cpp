@@ -9,7 +9,7 @@
 
 int main() {
     for (size_t N = 3e5; N <= 45e5; N += 3e5) {
-        for (size_t i = 0; i < 4; i++) {
+        for (size_t i = 1; i <= 3; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;
 
@@ -20,11 +20,11 @@ int main() {
             {PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();}
             {SeparatorComparisonItem(N, objectSize, numQueries).performBenchmark();}
 
-            // Partial benchmark
+            // Static part of dynamic stores
             {LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();}
             {SiltComparisonItemSortedStore(N, objectSize, numQueries).performBenchmark();}
 
-            // Microbenchmark
+            // Index microbenchmark
             {SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();}
             numQueries = numQueries * 5;
             {PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}

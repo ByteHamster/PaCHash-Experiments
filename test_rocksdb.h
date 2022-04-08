@@ -1,5 +1,7 @@
 #include "rocksdb/db.h"
 #include "rocksdb/table.h"
+#include "rocksdb/filter_policy.h"
+#include "rocksdb/utilities/memory_util.h"
 #include "StoreComparisonItem.h"
 #include <iostream>
 #include <random>
@@ -15,9 +17,10 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;
             table_options.no_block_cache = true;
+            //table_options.filter_policy.reset(rocksdb::NewBloomFilterPolicy(10, false));
             options.table_factory.reset(NewBlockBasedTableFactory(table_options));
-            options.use_direct_reads = false;
-            options.allow_mmap_reads = true;
+            options.use_direct_reads = directIo;
+            options.allow_mmap_reads = false;
             options.env = rocksdb::Env::Default();
             std::vector<rocksdb::ColumnFamilyDescriptor> x;
             rocksdb::DestroyDB(filePath, options, x);
@@ -30,6 +33,12 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         }
 
         ~RocksDBComparisonItem() override {
+            /*std::map<rocksdb::MemoryUtil::UsageType, uint64_t> usage;
+            std::vector<rocksdb::DB *> dbs;
+            dbs.push_back(db);
+            std::unordered_set<const rocksdb::Cache*> cache_set;
+            rocksdb::MemoryUtil::GetApproximateMemoryUsageByType(dbs, cache_set, &usage);
+            std::cout<<"Total memory: "<<usage[rocksdb::MemoryUtil::UsageType::kMemTableTotal]<<std::endl;*/
             db->Close();
             delete db;
             std::vector<rocksdb::ColumnFamilyDescriptor> x;

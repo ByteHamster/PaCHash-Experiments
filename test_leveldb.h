@@ -15,7 +15,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
 
         LevelDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
                 StoreComparisonItem("leveldb", N, objectSize, numQueries) {
-            options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
+            // Does not support direct IO
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
             leveldb::DestroyDB(filename, options);

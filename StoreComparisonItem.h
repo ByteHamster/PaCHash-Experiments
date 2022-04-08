@@ -33,12 +33,14 @@ class StoreComparisonItem {
         size_t N;
         size_t objectSize;
         size_t numQueries;
-        const char *emptyValuePointer;
+        char *emptyValuePointer;
         size_t allocationsBeginning = 0;
+        bool directIo = true;
 
         StoreComparisonItem(std::string method, size_t N, size_t objectSize, size_t numQueries)
                 : method(std::move(method)), N(N), objectSize(objectSize), numQueries(numQueries) {
             emptyValuePointer = new char[objectSize];
+            memset(emptyValuePointer, 42, objectSize * sizeof(char));
             allocationsBeginning = mallinfo2().uordblks;
         }
 

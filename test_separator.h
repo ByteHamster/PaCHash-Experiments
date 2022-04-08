@@ -10,7 +10,7 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
 
         SeparatorComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)
             : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
-                objectStore(0.95, filename, 0) {
+                objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
         }
 
         ~SeparatorComparisonItemBase() override {
@@ -65,7 +65,7 @@ class SeparatorComparisonItem : public SeparatorComparisonItemBase {
         }
 
         void beforeQuery() override {
-            objectStoreView = new ObjectStoreView(objectStore, 0, depth);
+            objectStoreView = new ObjectStoreView(objectStore, directIo ? O_DIRECT : 0, depth);
             for (size_t i = 0; i < depth; i++) {
                 queryHandles.emplace_back(new pachash::QueryHandle(objectStore));
             }

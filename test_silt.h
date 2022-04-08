@@ -26,6 +26,12 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
             config->SetStringValue("size", buf);
+            config->SetStringValue("/fawnds/store0/hashtable/use-buffered-io-only", directIo ? "1" : "0");
+            config->SetStringValue("/fawnds/store0/datastore/use-buffered-io-only", directIo ? "1" : "0");
+            config->SetStringValue("/fawnds/store1/hashtable/use-buffered-io-only", directIo ? "1" : "0");
+            config->SetStringValue("/fawnds/store1/datastore/use-buffered-io-only", directIo ? "1" : "0");
+            config->SetStringValue("/fawnds/store2/datastore/use-buffered-io-only", directIo ? "1" : "0");
+            // config->WriteConfigFile("../siltConfig.out.xml"); // For checking
             store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = store->Create();
             assert(res == fawn::FawnDS_Return::OK);
@@ -83,6 +89,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
             config->SetStringValue("size", buf);
+            config->SetStringValue("/fawnds/datastore/use-buffered-io-only", directIo ? "1" : "0");
+            //config->WriteConfigFile("../siltConfigSorted.out.xml"); // For checking
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = sortedStore->Create();
             assert(res == fawn::FawnDS_Return::OK);

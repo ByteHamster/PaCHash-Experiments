@@ -10,7 +10,7 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
 
         PaCHashComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)
             : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
-                objectStore(1, filename, 0) {
+                objectStore(1, filename, directIo ? O_DIRECT : 0) {
         }
 
         ~PaCHashComparisonItemBase() override {
@@ -66,7 +66,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
         }
 
         void beforeQuery() override {
-            objectStoreView = new ObjectStoreView(objectStore, 0, depth);
+            objectStoreView = new ObjectStoreView(objectStore, directIo ? O_DIRECT : 0, depth);
             for (size_t i = 0; i < depth; i++) {
                 queryHandles.emplace_back(new pachash::QueryHandle(objectStore));
             }
@@ -101,7 +101,6 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 DO_NOT_OPTIMIZE(handle->resultPtr);
                 assert(handle->resultPtr != nullptr);
-                handled++;
             }
         }
 

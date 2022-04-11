@@ -14,15 +14,20 @@ int main() {
             size_t numQueries = 1e6;
 
             // Full data store
-            {SiltComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {SiltComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
+            {SiltComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
             {LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {RocksDBComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {PaCHashComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {SeparatorComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {RocksDBComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
+            {RocksDBComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
+            {PaCHashComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
+            {PaCHashComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
+            {SeparatorComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
+            {SeparatorComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
 
             // Static part of dynamic stores
             {LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {SiltComparisonItemSortedStore(N, objectSize, numQueries).performBenchmark();}
+            {SiltComparisonItemSortedStore(N, objectSize, numQueries, false).performBenchmark();}
+            {SiltComparisonItemSortedStore(N, objectSize, numQueries, true).performBenchmark();}
 
             // Index microbenchmark
             {SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();}

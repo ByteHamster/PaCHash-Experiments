@@ -8,9 +8,10 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/separator-test";
         pachash::SeparatorObjectStore<6> objectStore;
 
-        SeparatorComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries)
+        SeparatorComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries, bool directIo)
             : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
                 objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
+            this->directIo = directIo;
         }
 
         ~SeparatorComparisonItemBase() override {
@@ -41,7 +42,7 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
 class SeparatorMicroIndexComparisonItem : public SeparatorComparisonItemBase {
     public:
         SeparatorMicroIndexComparisonItem(size_t N, size_t objectSize, size_t numQueries)
-                : SeparatorComparisonItemBase("separator_micro_index", N, objectSize, numQueries) {
+                : SeparatorComparisonItemBase("separator_micro_index", N, objectSize, numQueries, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -60,8 +61,9 @@ class SeparatorComparisonItem : public SeparatorComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        SeparatorComparisonItem(size_t N, size_t objectSize, size_t numQueries)
-            : SeparatorComparisonItemBase("separator", N, objectSize, numQueries) {
+        SeparatorComparisonItem(size_t N, size_t objectSize, size_t numQueries, bool directIo)
+            : SeparatorComparisonItemBase(directIo ? "separator_direct" : "separator",
+                                          N, objectSize, numQueries, directIo) {
         }
 
         void beforeQuery() override {

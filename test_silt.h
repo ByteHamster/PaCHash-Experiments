@@ -17,8 +17,9 @@ class SiltComparisonItemBase : public StoreComparisonItem {
         fawn::FawnDS_Combi* store;
         std::string filename = "/data02/hplehmann/silt-test";
 
-        SiltComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
+        SiltComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries, bool directIo) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
+            this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../siltConfig.xml");
@@ -60,8 +61,8 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
 class SiltComparisonItem : public SiltComparisonItemBase {
     public:
-        SiltComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
-                SiltComparisonItemBase("silt", N, objectSize, numQueries) {
+        SiltComparisonItem(size_t N, size_t objectSize, size_t numQueries, bool directIo) :
+                SiltComparisonItemBase(directIo ? "silt_direct" : "silt", N, objectSize, numQueries, directIo) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -80,8 +81,9 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         std::string filename = "/data02/hplehmann/silt-test-sorted";
         fawn::FawnDS* sorter = nullptr;
 
-        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
+        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t objectSize, size_t numQueries, bool directIo) :
                 StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
+            this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../siltConfigSorted.xml");
@@ -175,8 +177,9 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
 class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
     public:
-        SiltComparisonItemSortedStore(size_t N, size_t objectSize, size_t numQueries) :
-                SiltComparisonItemSortedStoreBase("silt_sorted", N, objectSize, numQueries) {
+        SiltComparisonItemSortedStore(size_t N, size_t objectSize, size_t numQueries, bool directIo) :
+                SiltComparisonItemSortedStoreBase(directIo ? "silt_sorted_direct" : "silt_sorted",
+                                                  N, objectSize, numQueries, directIo) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -193,7 +196,7 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
 class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreBase {
     public:
         SiltComparisonItemSortedStoreMicro(size_t N, size_t objectSize, size_t numQueries) :
-                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, objectSize, numQueries) {
+                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, objectSize, numQueries, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {

@@ -1,0 +1,18 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c204baa21..91a80a5b9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -359,11 +359,8 @@ int main() {
+ endif()
+ 
+ if (WITH_LIBURING)
+-  find_package(uring)
+-  if (uring_FOUND)
+-    add_definitions(-DROCKSDB_IOURING_PRESENT)
+-    list(APPEND THIRDPARTY_LIBS uring::uring)
+-  endif()
++  add_definitions(-DROCKSDB_IOURING_PRESENT)
++  list(APPEND THIRDPARTY_LIBS uring)
+ endif()
+ 
+ # Reset the required flags

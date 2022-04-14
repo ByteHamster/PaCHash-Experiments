@@ -9,7 +9,7 @@
 #include "test_cuckoo.h"
 
 int main() {
-    for (size_t N = 3e5; N <= 45e5; N += 3e5) {
+    for (size_t N = 4e5; N <= 52e5; N += 4e5) {
         for (size_t i = 1; i <= 3; i++) {
             size_t objectSize = 256;
             size_t numQueries = 1e6;

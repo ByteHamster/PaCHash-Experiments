@@ -4,6 +4,7 @@
 class RecSplitComparisonItem : public StoreComparisonItem {
     public:
         sux::function::RecSplit<8> *recSplit = nullptr;
+        std::vector<std::string> keysOnly;
 
         RecSplitComparisonItem(size_t N, size_t numQueries) :
                 StoreComparisonItem("recsplit", N, numQueries) {
@@ -17,8 +18,21 @@ class RecSplitComparisonItem : public StoreComparisonItem {
             return 0;
         }
 
-        void construct(std::vector<std::string> &keys) override {
-            recSplit = new sux::function::RecSplit<8>(keys, 2000);
+        void beforeConstruct(std::vector<Object> &objects) override {
+            keysOnly.reserve(objects.size());
+            for (const Object &object : objects) {
+                keysOnly.emplace_back(object.key);
+                assert(object.length == objectSize);
+            }
+        }
+
+        void construct(std::vector<Object> &objects) override {
+            recSplit = new sux::function::RecSplit<8>(keysOnly, 2000);
+        }
+
+        void afterConstruct() override {
+            keysOnly.clear();
+            keysOnly.shrink_to_fit();
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {

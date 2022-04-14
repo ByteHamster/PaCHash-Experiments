@@ -50,12 +50,12 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             return directorySize(filePath.c_str());
         }
 
-        void construct(std::vector<std::string> &keys) override {
+        void construct(std::vector<Object> &objects) override {
             rocksdb::WriteOptions writeOptions;
             writeOptions.disableWAL = true;
             rocksdb::WriteBatch writeBatch;
-            for (std::string &key : keys) {
-                writeBatch.Put(key, rocksdb::Slice(emptyValuePointer, objectSize));
+            for (Object &object : objects) {
+                writeBatch.Put(object.key, rocksdb::Slice(emptyValuePointer, object.length));
             }
             db->Write(writeOptions, &writeBatch);
             db->Flush(rocksdb::FlushOptions());

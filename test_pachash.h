@@ -22,19 +22,18 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             return fileSize(filename);
         }
 
-        void construct(std::vector<std::string> &keys) override {
-            auto hashFunction = [](const std::string &key) -> pachash::StoreConfig::key_t {
-                return pachash::MurmurHash64(key);
+        void construct(std::vector<Object> &objects) override {
+            auto hashFunction = [](const Object &object) -> pachash::StoreConfig::key_t {
+                return pachash::MurmurHash64(object.key);
             };
-            auto lengthEx = [&](const std::string &key) -> size_t {
-                (void) key;
-                return objectSize;
+            auto lengthEx = [&](const Object &object) -> size_t {
+                return object.length;
             };
-            auto valueEx = [&](const std::string &key) -> const char * {
-                (void) key;
+            auto valueEx = [&](const Object &object) -> const char * {
+                (void) object;
                 return emptyValuePointer;
             };
-            objectStore.writeToFile(keys.begin(), keys.end(), hashFunction, lengthEx, valueEx);
+            objectStore.writeToFile(objects.begin(), objects.end(), hashFunction, lengthEx, valueEx);
             objectStore.buildIndex();
         }
 };

@@ -26,6 +26,14 @@ std::size_t fileSize(const char *name) {
     return std::filesystem::file_size(file);
 }
 
+struct Object {
+    std::string key;
+    size_t length;
+
+    Object(std::string key, size_t length) : key(std::move(key)), length(length) {
+    }
+};
+
 class StoreComparisonItem {
     private:
         std::string method;
@@ -48,8 +56,8 @@ class StoreComparisonItem {
             delete[] emptyValuePointer;
         }
 
-        virtual void beforeConstruct(std::vector<std::string> &keys) { };
-        virtual void construct(std::vector<std::string> &keys) = 0;
+        virtual void beforeConstruct(std::vector<Object> &objects) { };
+        virtual void construct(std::vector<Object> &objects) = 0;
         virtual void afterConstruct() { };
 
         virtual void beforeQuery() { };
@@ -59,11 +67,11 @@ class StoreComparisonItem {
         virtual size_t externalSpaceUsage() = 0;
 
         void performBenchmark() {
-            std::vector<std::string> keys = generateRandomKeys(N);
+            std::vector<Object> objects = generateRandomObjects(N);
             std::cout<<method<<": Construction"<<std::endl;
-            beforeConstruct(keys);
+            beforeConstruct(objects);
             auto constructStart = std::chrono::high_resolution_clock::now();
-            construct(keys);
+            construct(objects);
             auto constructEnd = std::chrono::high_resolution_clock::now();
             afterConstruct();
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
@@ -75,7 +83,7 @@ class StoreComparisonItem {
             std::mt19937_64 generator(seed);
             std::uniform_int_distribution<uint64_t> dist(0, N - 1);
             for (size_t i = 0; i < numQueries + 200; i++) {
-                keysQueryOrder.push_back(keys.at(dist(generator)));
+                keysQueryOrder.push_back(objects.at(dist(generator)).key);
             }
             usleep(1000*1000);
 
@@ -88,8 +96,8 @@ class StoreComparisonItem {
             double queryTimeSeconds = (double)queryTimeMicroseconds / (double)1e6;
             afterQuery();
 
-            keys.clear();
-            keys.shrink_to_fit();
+            objects.clear();
+            objects.shrink_to_fit();
             keysQueryOrder.clear();
             keysQueryOrder.shrink_to_fit();
             size_t allocationsEnd = mallinfo2().uordblks;
@@ -109,20 +117,20 @@ class StoreComparisonItem {
         }
 
     private:
-        static std::vector<std::string> generateRandomKeys(size_t N) {
+        std::vector<Object> generateRandomObjects(size_t N) {
             uint64_t seed = std::random_device{}();
             std::cout<<"# Seed for input keys: "<<seed<<std::endl;
             std::mt19937_64 generator(seed);
             std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
-            std::vector<std::string> keys;
-            keys.reserve(N);
+            std::vector<Object> objects;
+            objects.reserve(N);
             for (size_t i = 0; i < N; i++) {
                 uint64_t key = dist(generator);
                 while (strnlen(reinterpret_cast<const char *>(&key), sizeof(uint64_t)) != sizeof(uint64_t)) {
                     key = dist(generator); // No null bytes in key
                 }
-                keys.emplace_back(std::string((char *)&key, sizeof(uint64_t)));
+                objects.emplace_back(std::string((char *)&key, sizeof(uint64_t)), objectSize);
             }
-            return keys;
+            return objects;
         }
 };

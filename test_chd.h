@@ -19,14 +19,15 @@ class ChdComparisonItem : public StoreComparisonItem {
             return 0;
         }
 
-        void beforeConstruct(std::vector<std::string> &keys) override {
+        void beforeConstruct(std::vector<Object> &objects) override {
             convertedInput = new char*[N];
-            for (size_t i = 0; i < keys.size(); i++) {
-                convertedInput[i] = keys.at(i).data();
+            for (size_t i = 0; i < objects.size(); i++) {
+                convertedInput[i] = objects.at(i).key.data();
+                assert(objects.at(i).length == objectSize);
             }
         }
 
-        void construct(std::vector<std::string> &keys) override {
+        void construct(std::vector<Object> &objects) override {
             cmph_io_adapter_t *source = cmph_io_vector_adapter(convertedInput, N);
             cmph_config_t *config = cmph_config_new(source);
             cmph_config_set_algo(config, CMPH_CHD_PH);

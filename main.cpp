@@ -11,7 +11,7 @@
 int main() {
     for (size_t N = 4e5; N <= 52e5; N += 4e5) {
         for (size_t i = 1; i <= 3; i++) {
-            size_t numQueries = 1e6;
+            size_t numQueries = 1e2;
 
             // Full data store
             {SiltComparisonItem(N, numQueries, false).performBenchmark();}

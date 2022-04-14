@@ -49,10 +49,11 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             return directorySize(filename.c_str());
         }
 
-        void construct(std::vector<std::string> &keys) override {
-            for (std::string &key : keys) {
+        void construct(std::vector<Object> &objects) override {
+            for (const Object &object : objects) {
+                assert(object.length == objectSize);
                 fawn::ConstRefValue value(emptyValuePointer, objectSize);
-                fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(key), value);
+                fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(object.key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
             store->Flush();
@@ -109,7 +110,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             return directorySize(filename.c_str());
         }
 
-        void beforeConstruct(std::vector<std::string> &keys) override {
+        void beforeConstruct(std::vector<Object> &objects) override {
             fawn::Configuration *sorter_config = new fawn::Configuration();
 
             char buf[1024];
@@ -148,11 +149,12 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             assert(res == fawn::OK);
         }
 
-        void construct(std::vector<std::string> &keys) override {
+        void construct(std::vector<Object> &objects) override {
             fawn::FawnDS_Return res;
-            for (std::string &key : keys) {
+            for (const Object &object : objects) {
+                assert(object.length == objectSize);
                 fawn::ConstRefValue value(emptyValuePointer, objectSize);
-                res = sorter->Put(fawn::ConstRefValue(key), value);
+                res = sorter->Put(fawn::ConstRefValue(object.key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
             sorter->Flush();

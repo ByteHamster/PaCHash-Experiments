@@ -35,11 +35,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             return directorySize(filename.c_str());
         }
 
-        void construct(std::vector<std::string> &keys) override {
+        void construct(std::vector<Object> &objects) override {
             leveldb::WriteBatch batch;
-            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, objectSize);
-            for (std::string &key : keys) {
-                batch.Put(key, valueSlice);
+            for (Object &object : objects) {
+                batch.Put(object.key, leveldb::Slice(emptyValuePointer, object.length));
             }
             leveldb::WriteOptions writeOptions;
             writeOptions.sync = true;
@@ -90,15 +89,16 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             return fileSize(filename.c_str());
         }
 
-        void construct(std::vector<std::string> &keys) override {
-            std::sort(keys.begin(), keys.end());
+        void construct(std::vector<Object> &objects) override {
+            std::sort(objects.begin(), objects.end(), [](const Object &o1, const Object &o2) {
+                return o1.key < o2.key;
+            });
             leveldb::WritableFile *file = nullptr;
             leveldb::Env::Default()->DeleteFile(filename);
             leveldb::Env::Default()->NewWritableFile(filename, &file);
             leveldb::TableBuilder tableBuilder(options, file);
-            leveldb::Slice valueSlice = leveldb::Slice(emptyValuePointer, objectSize);
-            for (std::string &key : keys) {
-                tableBuilder.Add(key, valueSlice);
+            for (Object &object : objects) {
+                tableBuilder.Add(object.key, leveldb::Slice(emptyValuePointer, object.length));
             }
             leveldb::Status status = tableBuilder.Finish();
             file->Close();

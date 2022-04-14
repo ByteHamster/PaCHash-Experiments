@@ -6,6 +6,7 @@
 #include "test_std_unordered_map.h"
 #include "test_separator.h"
 #include "test_chd.h"
+#include "test_cuckoo.h"
 
 int main() {
     for (size_t N = 3e5; N <= 45e5; N += 3e5) {
@@ -23,6 +24,8 @@ int main() {
             {PaCHashComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
             {SeparatorComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
             {SeparatorComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
+            {CuckooComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
+            {CuckooComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
 
             // Static part of dynamic stores
             {LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();}

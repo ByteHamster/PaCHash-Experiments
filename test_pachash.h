@@ -8,8 +8,8 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
 
-        PaCHashComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries, bool directIo)
-            : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
+        PaCHashComparisonItemBase(std::string method, size_t N, size_t numQueries, bool directIo)
+            : StoreComparisonItem(std::move(method), N, numQueries),
                 objectStore(1, filename, directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
@@ -41,8 +41,8 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
 
 class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
     public:
-        PaCHashMicroIndexComparisonItem(size_t N, size_t objectSize, size_t numQueries)
-                : PaCHashComparisonItemBase("pachash_micro_index", N, objectSize, numQueries, false) {
+        PaCHashMicroIndexComparisonItem(size_t N, size_t numQueries)
+                : PaCHashComparisonItemBase("pachash_micro_index", N, numQueries, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -62,8 +62,8 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        PaCHashComparisonItem(size_t N, size_t objectSize, size_t numQueries, bool directIo)
-            : PaCHashComparisonItemBase(directIo ? "pachash_direct" : "pachash", N, objectSize, numQueries, directIo) {
+        PaCHashComparisonItem(size_t N, size_t numQueries, bool directIo)
+            : PaCHashComparisonItemBase(directIo ? "pachash_direct" : "pachash", N, numQueries, directIo) {
         }
 
         void beforeQuery() override {

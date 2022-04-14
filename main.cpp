@@ -11,36 +11,35 @@
 int main() {
     for (size_t N = 4e5; N <= 52e5; N += 4e5) {
         for (size_t i = 1; i <= 3; i++) {
-            size_t objectSize = 256;
             size_t numQueries = 1e6;
 
             // Full data store
-            {SiltComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
-            {SiltComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
-            {LevelDBComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {RocksDBComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
-            {RocksDBComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
-            {PaCHashComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
-            {PaCHashComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
-            {SeparatorComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
-            {SeparatorComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
-            {CuckooComparisonItem(N, objectSize, numQueries, true).performBenchmark();}
-            {CuckooComparisonItem(N, objectSize, numQueries, false).performBenchmark();}
+            {SiltComparisonItem(N, numQueries, false).performBenchmark();}
+            {SiltComparisonItem(N, numQueries, true).performBenchmark();}
+            {LevelDBComparisonItem(N, numQueries).performBenchmark();}
+            {RocksDBComparisonItem(N, numQueries, false).performBenchmark();}
+            {RocksDBComparisonItem(N, numQueries, true).performBenchmark();}
+            {PaCHashComparisonItem(N, numQueries, false).performBenchmark();}
+            {PaCHashComparisonItem(N, numQueries, true).performBenchmark();}
+            {SeparatorComparisonItem(N, numQueries, false).performBenchmark();}
+            {SeparatorComparisonItem(N, numQueries, true).performBenchmark();}
+            {CuckooComparisonItem(N, numQueries, true).performBenchmark();}
+            {CuckooComparisonItem(N, numQueries, false).performBenchmark();}
 
             // Static part of dynamic stores
-            {LevelDBSingleTableComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {SiltComparisonItemSortedStore(N, objectSize, numQueries, false).performBenchmark();}
-            {SiltComparisonItemSortedStore(N, objectSize, numQueries, true).performBenchmark();}
+            {LevelDBSingleTableComparisonItem(N, numQueries).performBenchmark();}
+            {SiltComparisonItemSortedStore(N, numQueries, false).performBenchmark();}
+            {SiltComparisonItemSortedStore(N, numQueries, true).performBenchmark();}
 
             // Index microbenchmark
-            {SiltComparisonItemSortedStoreMicro(N, objectSize, numQueries).performBenchmark();}
+            {SiltComparisonItemSortedStoreMicro(N, numQueries).performBenchmark();}
             numQueries = numQueries * 5;
-            {PaCHashMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {LevelDBSingleTableMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {RecSplitComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {ChdComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {StdUnorderedMapComparisonItem(N, objectSize, numQueries).performBenchmark();}
-            {SeparatorMicroIndexComparisonItem(N, objectSize, numQueries).performBenchmark();}
+            {PaCHashMicroIndexComparisonItem(N, numQueries).performBenchmark();}
+            {LevelDBSingleTableMicroIndexComparisonItem(N, numQueries).performBenchmark();}
+            {RecSplitComparisonItem(N, numQueries).performBenchmark();}
+            {ChdComparisonItem(N, numQueries).performBenchmark();}
+            {StdUnorderedMapComparisonItem(N, numQueries).performBenchmark();}
+            {SeparatorMicroIndexComparisonItem(N, numQueries).performBenchmark();}
         }
     }
     return 0;

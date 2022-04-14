@@ -12,8 +12,8 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         std::string filePath = "/data02/hplehmann/rocksdb-test";
         rocksdb::Options options;
 
-        RocksDBComparisonItem(size_t N, size_t objectSize, size_t numQueries, bool directIo) :
-                StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", N, objectSize, numQueries) {
+        RocksDBComparisonItem(size_t N, size_t numQueries, bool directIo) :
+                StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", N, numQueries) {
             this->directIo = directIo;
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;

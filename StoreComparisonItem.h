@@ -31,14 +31,14 @@ class StoreComparisonItem {
         std::string method;
     public:
         size_t N;
-        size_t objectSize;
+        size_t objectSize = 256;
         size_t numQueries;
         char *emptyValuePointer;
         size_t allocationsBeginning = 0;
         bool directIo = true;
 
-        StoreComparisonItem(std::string method, size_t N, size_t objectSize, size_t numQueries)
-                : method(std::move(method)), N(N), objectSize(objectSize), numQueries(numQueries) {
+        StoreComparisonItem(std::string method, size_t N, size_t numQueries)
+                : method(std::move(method)), N(N), numQueries(numQueries) {
             emptyValuePointer = new char[objectSize];
             memset(emptyValuePointer, 42, objectSize * sizeof(char));
             allocationsBeginning = mallinfo2().uordblks;

@@ -7,8 +7,8 @@ class CuckooComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/cuckoo-test";
         pachash::ParallelCuckooObjectStore objectStore;
 
-        CuckooComparisonItemBase(std::string method, size_t N, size_t objectSize, size_t numQueries, bool directIo)
-            : StoreComparisonItem(std::move(method), N, objectSize, numQueries),
+        CuckooComparisonItemBase(std::string method, size_t N, size_t numQueries, bool directIo)
+            : StoreComparisonItem(std::move(method), N, numQueries),
                 objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
@@ -45,9 +45,8 @@ class CuckooComparisonItem : public CuckooComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        CuckooComparisonItem(size_t N, size_t objectSize, size_t numQueries, bool directIo)
-            : CuckooComparisonItemBase(directIo ? "cuckoo_direct" : "cuckoo",
-                                          N, objectSize, numQueries, directIo) {
+        CuckooComparisonItem(size_t N, size_t numQueries, bool directIo)
+            : CuckooComparisonItemBase(directIo ? "cuckoo_direct" : "cuckoo", N, numQueries, directIo) {
         }
 
         void beforeQuery() override {

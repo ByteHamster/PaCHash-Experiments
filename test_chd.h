@@ -6,8 +6,8 @@ class ChdComparisonItem : public StoreComparisonItem {
         char **convertedInput = nullptr;
         size_t kPerfect;
 
-        ChdComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
-                StoreComparisonItem("cmph", N, objectSize, numQueries) {
+        ChdComparisonItem(size_t N, size_t numQueries) :
+                StoreComparisonItem("cmph", N, numQueries) {
             kPerfect = 4096 / objectSize;
         }
 

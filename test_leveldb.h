@@ -13,8 +13,8 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         leveldb::DB *db = nullptr;
         const std::string filename = "/data02/hplehmann/leveldb-test";
 
-        LevelDBComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
-                StoreComparisonItem("leveldb", N, objectSize, numQueries) {
+        LevelDBComparisonItem(size_t N, size_t numQueries) :
+                StoreComparisonItem("leveldb", N, numQueries) {
             // Does not support direct IO
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
@@ -74,8 +74,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         leveldb::RandomAccessFile *raFile = nullptr;
         leveldb::ReadOptions readOptions;
 
-        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t objectSize, size_t numQueries) :
-                StoreComparisonItem(std::move(name), N, objectSize, numQueries) {
+        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t numQueries) :
+                StoreComparisonItem(std::move(name), N, numQueries) {
             options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
         }
@@ -115,8 +115,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
 
 class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableComparisonItem(size_t N, size_t objectSize, size_t numQueries)
-            : LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, objectSize, numQueries) {
+        LevelDBSingleTableComparisonItem(size_t N, size_t numQueries)
+            : LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, numQueries) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
@@ -131,8 +131,8 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
 class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t objectSize, size_t numQueries)
-            : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, objectSize, numQueries) {
+        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t numQueries)
+            : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, numQueries) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {

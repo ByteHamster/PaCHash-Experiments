@@ -4,8 +4,8 @@ class StdUnorderedMapComparisonItem : public StoreComparisonItem {
     public:
         std::unordered_map<uint64_t, size_t> map;
 
-        StdUnorderedMapComparisonItem(size_t N, size_t objectSize, size_t numQueries) :
-                StoreComparisonItem("unordered_map", N, objectSize, numQueries) {
+        StdUnorderedMapComparisonItem(size_t N, size_t numQueries) :
+                StoreComparisonItem("unordered_map", N, numQueries) {
         }
 
         size_t externalSpaceUsage() override {

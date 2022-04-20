@@ -61,7 +61,7 @@ class StoreComparisonItem {
 
         virtual void beforeConstruct(std::vector<Object> &objects) {
             (void) objects;
-        };
+        }
         virtual void construct(std::vector<Object> &objects) = 0;
         virtual void afterConstruct() { };
 

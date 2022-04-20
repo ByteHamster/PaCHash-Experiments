@@ -16,7 +16,9 @@ class ChdComparisonItem : public StoreComparisonItem {
         }
 
         ~ChdComparisonItem() override {
-            cmph_destroy(mphf);
+            if (mphf != nullptr) {
+                cmph_destroy(mphf);
+            }
         }
 
         size_t externalSpaceUsage() override {

@@ -15,7 +15,9 @@ class RecSplitComparisonItem : public StoreComparisonItem {
         }
 
         ~RecSplitComparisonItem() override {
-            delete recSplit;
+            if (recSplit != nullptr) {
+                delete recSplit;
+            }
         }
 
         size_t externalSpaceUsage() override {

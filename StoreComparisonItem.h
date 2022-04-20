@@ -44,6 +44,7 @@ class StoreComparisonItem {
         char *emptyValuePointer;
         size_t allocationsBeginning = 0;
         bool directIo = true;
+        bool variableSize = true;
 
         StoreComparisonItem(std::string method, size_t N, size_t numQueries)
                 : method(std::move(method)), N(N), numQueries(numQueries) {
@@ -56,7 +57,11 @@ class StoreComparisonItem {
             delete[] emptyValuePointer;
         }
 
-        virtual void beforeConstruct(std::vector<Object> &objects) { };
+        virtual bool supportsVariableSize() = 0;
+
+        virtual void beforeConstruct(std::vector<Object> &objects) {
+            (void) objects;
+        };
         virtual void construct(std::vector<Object> &objects) = 0;
         virtual void afterConstruct() { };
 
@@ -67,6 +72,10 @@ class StoreComparisonItem {
         virtual size_t externalSpaceUsage() = 0;
 
         void performBenchmark() {
+            if (variableSize && !supportsVariableSize()) {
+                std::cout<<method<<" does not support variable size objects. Skipping."<<std::endl;
+                return;
+            }
             std::vector<Object> objects = generateRandomObjects(N);
             std::cout<<method<<": Construction"<<std::endl;
             beforeConstruct(objects);
@@ -121,15 +130,21 @@ class StoreComparisonItem {
             uint64_t seed = std::random_device{}();
             std::cout<<"# Seed for input keys: "<<seed<<std::endl;
             std::mt19937_64 generator(seed);
-            std::uniform_int_distribution<uint64_t> dist(0, UINT64_MAX);
+            std::uniform_int_distribution<uint64_t> keyDist(0, UINT64_MAX);
+            std::uniform_int_distribution<size_t> sizeDist(static_cast<size_t>(0.5 * objectSize),
+                                                           static_cast<size_t>(1.5 * objectSize));
             std::vector<Object> objects;
             objects.reserve(N);
             for (size_t i = 0; i < N; i++) {
-                uint64_t key = dist(generator);
+                uint64_t key = keyDist(generator);
                 while (strnlen(reinterpret_cast<const char *>(&key), sizeof(uint64_t)) != sizeof(uint64_t)) {
-                    key = dist(generator); // No null bytes in key
+                    key = keyDist(generator); // No null bytes in key
                 }
-                objects.emplace_back(std::string((char *)&key, sizeof(uint64_t)), objectSize);
+                size_t size = objectSize;
+                if (variableSize) {
+                    size = sizeDist(generator);
+                }
+                objects.emplace_back(std::string((char *)&key, sizeof(uint64_t)), size);
             }
             return objects;
         }

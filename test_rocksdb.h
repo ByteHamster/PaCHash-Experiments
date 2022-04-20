@@ -33,6 +33,10 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             }
         }
 
+        bool supportsVariableSize() override {
+            return true;
+        }
+
         ~RocksDBComparisonItem() override {
             /*std::map<rocksdb::MemoryUtil::UsageType, uint64_t> usage;
             std::vector<rocksdb::DB *> dbs;

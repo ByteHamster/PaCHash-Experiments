@@ -38,6 +38,10 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             assert(res == fawn::FawnDS_Return::OK);
         }
 
+        bool supportsVariableSize() override {
+            return false;
+        }
+
         ~SiltComparisonItemBase() override {
             store->Close();
             store->Destroy();
@@ -97,6 +101,10 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = sortedStore->Create();
             assert(res == fawn::FawnDS_Return::OK);
+        }
+
+        bool supportsVariableSize() override {
+            return false;
         }
 
         ~SiltComparisonItemSortedStoreBase() override {

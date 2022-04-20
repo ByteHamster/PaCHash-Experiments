@@ -13,6 +13,10 @@ class CuckooComparisonItemBase : public StoreComparisonItem {
             this->directIo = directIo;
         }
 
+        bool supportsVariableSize() override {
+            return true;
+        }
+
         ~CuckooComparisonItemBase() override {
             unlink(filename);
         }

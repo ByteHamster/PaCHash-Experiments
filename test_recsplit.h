@@ -10,6 +10,10 @@ class RecSplitComparisonItem : public StoreComparisonItem {
                 StoreComparisonItem("recsplit", N, numQueries) {
         }
 
+        bool supportsVariableSize() override {
+            return false;
+        }
+
         ~RecSplitComparisonItem() override {
             delete recSplit;
         }

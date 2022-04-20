@@ -8,6 +8,10 @@ class StdUnorderedMapComparisonItem : public StoreComparisonItem {
                 StoreComparisonItem("unordered_map", N, numQueries) {
         }
 
+        bool supportsVariableSize() override {
+            return true;
+        }
+
         size_t externalSpaceUsage() override {
             return 0;
         }

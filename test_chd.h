@@ -11,6 +11,10 @@ class ChdComparisonItem : public StoreComparisonItem {
             kPerfect = 4096 / objectSize;
         }
 
+        bool supportsVariableSize() override {
+            return false;
+        }
+
         ~ChdComparisonItem() override {
             cmph_destroy(mphf);
         }

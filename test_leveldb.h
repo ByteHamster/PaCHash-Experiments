@@ -26,6 +26,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             }
         }
 
+        bool supportsVariableSize() override {
+            return true;
+        }
+
         ~LevelDBComparisonItem() override {
             delete db;
             leveldb::DestroyDB(filename, options);
@@ -75,8 +79,11 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
 
         LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t numQueries) :
                 StoreComparisonItem(std::move(name), N, numQueries) {
-            options.block_size = 4096 - 150; // Headers etc. Ensures that pread calls are limited to <4096
             options.compression = leveldb::CompressionType::kNoCompression;
+        }
+
+        bool supportsVariableSize() override {
+            return true;
         }
 
         ~LevelDBSingleTableComparisonItemBase() override {

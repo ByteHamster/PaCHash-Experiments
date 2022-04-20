@@ -14,6 +14,10 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
             this->directIo = directIo;
         }
 
+        bool supportsVariableSize() override {
+            return true;
+        }
+
         ~PaCHashComparisonItemBase() override {
             unlink(filename);
         }

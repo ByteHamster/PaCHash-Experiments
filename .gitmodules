@@ -1,21 +1,18 @@
 [submodule "external/rocksdb"]
 	path = external/rocksdb
-	url = git@github.com:facebook/rocksdb.git
+	url = https://github.com/facebook/rocksdb.git
 [submodule "external/leveldb"]
 	path = external/leveldb
 	url = https://github.com/google/leveldb.git
 [submodule "external/silt"]
 	path = external/silt
-	url = git@github.com:ByteHamster/silt.git
+	url = https://github.com/ByteHamster/silt.git
 [submodule "external/pachash"]
 	path = external/pachash
-	url = git@github.com:ByteHamster/PaCHash.git
+	url = https://github.com/ByteHamster/PaCHash.git
 [submodule "external/sux"]
 	path = external/sux
-	url = git@github.com:vigna/sux.git
+	url = https://github.com/vigna/sux.git
 [submodule "external/cmph"]
 	path = external/cmph
-	url = git@github.com:bonitao/cmph.git
-[submodule "external/malloc_count"]
-	path = external/malloc_count
-	url = git@github.com:ByteHamster/malloc_count.git
+	url = https://github.com/bonitao/cmph.git

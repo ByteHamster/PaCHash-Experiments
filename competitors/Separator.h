@@ -1,7 +1,6 @@
 #include <SeparatorObjectStore.h>
-
 #include <utility>
-#include "StoreComparisonItem.h"
+#include "../StoreComparisonItem.h"
 
 class SeparatorComparisonItemBase : public StoreComparisonItem {
     public:

@@ -1,12 +1,12 @@
-#include "test_leveldb.h"
-#include "test_rocksdb.h"
-#include "test_silt.h"
-#include "test_pachash.h"
-#include "test_recsplit.h"
-#include "test_std_unordered_map.h"
-#include "test_separator.h"
-#include "test_chd.h"
-#include "test_cuckoo.h"
+#include "competitors/LevelDb.h"
+#include "competitors/RocksDb.h"
+#include "competitors/Silt.h"
+#include "competitors/PaCHash.h"
+#include "competitors/RecSplit.h"
+#include "competitors/std_unordered_map.h"
+#include "competitors/Separator.h"
+#include "competitors/Chd.h"
+#include "competitors/ParallelCuckoo.h"
 
 int main() {
     for (size_t N = 4e5; N <= 52e5; N += 4e5) {

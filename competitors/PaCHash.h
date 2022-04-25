@@ -1,7 +1,6 @@
 #include <PaCHashObjectStore.h>
-
 #include <utility>
-#include "StoreComparisonItem.h"
+#include "../StoreComparisonItem.h"
 
 class PaCHashComparisonItemBase : public StoreComparisonItem {
     public:

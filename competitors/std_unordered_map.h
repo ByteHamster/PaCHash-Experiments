@@ -1,4 +1,5 @@
 #include <unordered_map>
+#include "../StoreComparisonItem.h"
 
 class StdUnorderedMapComparisonItem : public StoreComparisonItem {
     public:

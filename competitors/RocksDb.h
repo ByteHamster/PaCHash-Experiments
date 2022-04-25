@@ -1,10 +1,10 @@
-#include "rocksdb/db.h"
-#include "rocksdb/table.h"
-#include "rocksdb/filter_policy.h"
-#include "rocksdb/utilities/memory_util.h"
-#include "StoreComparisonItem.h"
+#include <rocksdb/db.h>
+#include <rocksdb/table.h>
+#include <rocksdb/filter_policy.h>
+#include <rocksdb/utilities/memory_util.h>
 #include <iostream>
 #include <random>
+#include "../StoreComparisonItem.h"
 
 class RocksDBComparisonItem : public StoreComparisonItem {
     public:

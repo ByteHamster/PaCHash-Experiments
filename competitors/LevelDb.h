@@ -1,11 +1,11 @@
 #include <leveldb/env.h>
 #include <leveldb/table.h>
-#include "leveldb/table_builder.h"
-#include "StoreComparisonItem.h"
-#include "leveldb/db.h"
-#include "leveldb/write_batch.h"
+#include <leveldb/table_builder.h>
+#include <leveldb/db.h>
+#include <leveldb/write_batch.h>
 #include <memory>
 #include <utility>
+#include "../StoreComparisonItem.h"
 
 class LevelDBComparisonItem : public StoreComparisonItem {
     public:

@@ -44,7 +44,7 @@ class StoreComparisonItem {
         char *emptyValuePointer;
         size_t allocationsBeginning = 0;
         bool directIo = true;
-        bool variableSize = true;
+        bool variableSize = false;
 
         StoreComparisonItem(std::string method, size_t N, size_t numQueries)
                 : method(std::move(method)), N(N), numQueries(numQueries) {

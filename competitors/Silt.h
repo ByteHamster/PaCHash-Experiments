@@ -1,10 +1,10 @@
 #include <fawnds_combi.h>
 #include <fawnds_sf_ordered_trie.h>
-
 #include <utility>
-#include "fawnds.h"
-#include "configuration.h"
-#include "fawnds_factory.h"
+#include <fawnds.h>
+#include <configuration.h>
+#include <fawnds_factory.h>
+#include "../StoreComparisonItem.h"
 
 /**
  * Even though SILT implements an Open() call, that call does not actually open an existing database.
@@ -22,7 +22,7 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
-            auto* config = new fawn::Configuration("../siltConfig.xml");
+            auto* config = new fawn::Configuration("../competitors/siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
@@ -32,7 +32,6 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             config->SetStringValue("/fawnds/store1/hashtable/use-buffered-io-only", directIo ? "0" : "1");
             config->SetStringValue("/fawnds/store1/datastore/use-buffered-io-only", directIo ? "0" : "1");
             config->SetStringValue("/fawnds/store2/datastore/use-buffered-io-only", directIo ? "0" : "1");
-            // config->WriteConfigFile("../siltConfig.out.xml"); // For checking
             store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = store->Create();
             assert(res == fawn::FawnDS_Return::OK);
@@ -91,13 +90,12 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
-            auto* config = new fawn::Configuration("../siltConfigSorted.xml");
+            auto* config = new fawn::Configuration("../competitors/siltConfigSorted.xml");
             config->SetStringValue("data-len", std::to_string(objectSize));
             char buf[1024];
             snprintf(buf, sizeof(buf), "%zu", N);
             config->SetStringValue("size", buf);
             config->SetStringValue("/fawnds/datastore/use-buffered-io-only", directIo ? "0" : "1");
-            //config->WriteConfigFile("../siltConfigSorted.out.xml"); // For checking
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = sortedStore->Create();
             assert(res == fawn::FawnDS_Return::OK);

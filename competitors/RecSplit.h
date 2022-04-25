@@ -1,5 +1,5 @@
-#include "StoreComparisonItem.h"
-#include "sux/function/RecSplit.hpp"
+#include <sux/function/RecSplit.hpp>
+#include "../StoreComparisonItem.h"
 
 class RecSplitComparisonItem : public StoreComparisonItem {
     public:

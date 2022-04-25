@@ -1,6 +1,6 @@
 #include <ParallelCuckooObjectStore.h>
-
 #include <utility>
+#include "../StoreComparisonItem.h"
 
 class CuckooComparisonItemBase : public StoreComparisonItem {
     public:

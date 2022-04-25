@@ -7,9 +7,9 @@ class CuckooComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/cuckoo-test";
         pachash::ParallelCuckooObjectStore objectStore;
 
-        CuckooComparisonItemBase(std::string method, size_t N, size_t numQueries, bool directIo)
-            : StoreComparisonItem(std::move(method), N, numQueries),
-                objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
+        CuckooComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(std::move(method), benchmarkConfig),
+                    objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -48,8 +48,8 @@ class CuckooComparisonItem : public CuckooComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        CuckooComparisonItem(size_t N, size_t numQueries, bool directIo)
-            : CuckooComparisonItemBase(directIo ? "cuckoo_direct" : "cuckoo", N, numQueries, directIo) {
+        CuckooComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : CuckooComparisonItemBase(directIo ? "cuckoo_direct" : "cuckoo", benchmarkConfig, directIo) {
         }
 
         void beforeQuery() override {
@@ -70,7 +70,7 @@ class CuckooComparisonItem : public CuckooComparisonItemBase {
             objectStoreView->submit();
 
             // Submit new queries as old ones complete
-            while (handled < numQueries) {
+            while (handled < benchmarkConfig.numQueries) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     assert(handle->resultPtr != nullptr);

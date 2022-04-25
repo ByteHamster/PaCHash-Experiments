@@ -34,22 +34,27 @@ struct Object {
     }
 };
 
+struct BenchmarkConfig {
+    size_t N;
+    size_t objectSize = 256;
+    size_t numQueries;
+    bool variableSize = false;
+    std::string basePath = "/data02/hplehmann/";
+};
+
 class StoreComparisonItem {
     private:
         std::string method;
     public:
-        size_t N;
-        size_t objectSize = 256;
-        size_t numQueries;
         char *emptyValuePointer;
         size_t allocationsBeginning = 0;
+        const BenchmarkConfig benchmarkConfig;
         bool directIo = true;
-        bool variableSize = false;
 
-        StoreComparisonItem(std::string method, size_t N, size_t numQueries)
-                : method(std::move(method)), N(N), numQueries(numQueries) {
-            emptyValuePointer = new char[objectSize];
-            memset(emptyValuePointer, 42, objectSize * sizeof(char));
+        StoreComparisonItem(std::string method, const BenchmarkConfig& benchmarkConfig)
+                : method(std::move(method)), benchmarkConfig(benchmarkConfig) {
+            emptyValuePointer = new char[2 * benchmarkConfig.objectSize];
+            memset(emptyValuePointer, 42, 2 * benchmarkConfig.objectSize * sizeof(char));
             allocationsBeginning = mallinfo2().uordblks;
         }
 
@@ -72,11 +77,11 @@ class StoreComparisonItem {
         virtual size_t externalSpaceUsage() = 0;
 
         void performBenchmark() {
-            if (variableSize && !supportsVariableSize()) {
+            if (benchmarkConfig.variableSize && !supportsVariableSize()) {
                 std::cout<<method<<" does not support variable size objects. Skipping."<<std::endl;
                 return;
             }
-            std::vector<Object> objects = generateRandomObjects(N);
+            std::vector<Object> objects = generateRandomObjects();
             std::cout<<method<<": Construction"<<std::endl;
             beforeConstruct(objects);
             auto constructStart = std::chrono::high_resolution_clock::now();
@@ -86,12 +91,12 @@ class StoreComparisonItem {
             long constructTimeMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(constructEnd - constructStart).count();
 
             std::vector<std::string> keysQueryOrder;
-            keysQueryOrder.reserve(numQueries);
+            keysQueryOrder.reserve(benchmarkConfig.numQueries);
             uint64_t seed = std::random_device{}();
             std::cout<<method<<": Preparing Query (seed: "<<seed<<")"<<std::endl;
             std::mt19937_64 generator(seed);
-            std::uniform_int_distribution<uint64_t> dist(0, N - 1);
-            for (size_t i = 0; i < numQueries + 200; i++) {
+            std::uniform_int_distribution<uint64_t> dist(0, benchmarkConfig.N - 1);
+            for (size_t i = 0; i < benchmarkConfig.numQueries + 200; i++) {
                 keysQueryOrder.push_back(objects.at(dist(generator)).key);
             }
             usleep(1000*1000);
@@ -113,11 +118,11 @@ class StoreComparisonItem {
 
             std::cout << "RESULT"
                       << " method=" << method
-                      << " objectSize=" << objectSize
-                      << " numObjects=" << N
-                      << " numQueries=" << numQueries
+                      << " objectSize=" << benchmarkConfig.objectSize
+                      << " numObjects=" << benchmarkConfig.N
+                      << " numQueries=" << benchmarkConfig.numQueries
                       << " queryTimeMs=" << 1000 * queryTimeSeconds
-                      << " queriesPerSecond=" << (double)numQueries / queryTimeSeconds
+                      << " queriesPerSecond=" << (double)benchmarkConfig.numQueries / queryTimeSeconds
                       << " constructionTimeMs=" << constructTimeMilliseconds
                       << " externalSpaceBytes=" << externalSpaceUsage()
                       << " internalSpaceBytes=" << (allocationsEnd - allocationsBeginning)
@@ -126,22 +131,22 @@ class StoreComparisonItem {
         }
 
     private:
-        std::vector<Object> generateRandomObjects(size_t N) {
+        [[nodiscard]] std::vector<Object> generateRandomObjects() const {
             uint64_t seed = std::random_device{}();
             std::cout<<"# Seed for input keys: "<<seed<<std::endl;
             std::mt19937_64 generator(seed);
             std::uniform_int_distribution<uint64_t> keyDist(0, UINT64_MAX);
-            std::uniform_int_distribution<size_t> sizeDist(static_cast<size_t>(0.5 * objectSize),
-                                                           static_cast<size_t>(1.5 * objectSize));
+            std::uniform_int_distribution<size_t> sizeDist(static_cast<size_t>(0.5 * benchmarkConfig.objectSize),
+                                                           static_cast<size_t>(1.5 * benchmarkConfig.objectSize));
             std::vector<Object> objects;
-            objects.reserve(N);
-            for (size_t i = 0; i < N; i++) {
+            objects.reserve(benchmarkConfig.N);
+            for (size_t i = 0; i < benchmarkConfig.N; i++) {
                 uint64_t key = keyDist(generator);
                 while (strnlen(reinterpret_cast<const char *>(&key), sizeof(uint64_t)) != sizeof(uint64_t)) {
                     key = keyDist(generator); // No null bytes in key
                 }
-                size_t size = objectSize;
-                if (variableSize) {
+                size_t size = benchmarkConfig.objectSize;
+                if (benchmarkConfig.variableSize) {
                     size = sizeDist(generator);
                 }
                 objects.emplace_back(std::string((char *)&key, sizeof(uint64_t)), size);

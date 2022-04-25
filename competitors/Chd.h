@@ -7,9 +7,9 @@ class ChdComparisonItem : public StoreComparisonItem {
         char **convertedInput = nullptr;
         size_t kPerfect;
 
-        ChdComparisonItem(size_t N, size_t numQueries) :
-                StoreComparisonItem("cmph", N, numQueries) {
-            kPerfect = 4096 / objectSize;
+        explicit ChdComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : StoreComparisonItem("cmph", benchmarkConfig) {
+            kPerfect = 4096 / benchmarkConfig.objectSize;
         }
 
         bool supportsVariableSize() override {
@@ -27,15 +27,16 @@ class ChdComparisonItem : public StoreComparisonItem {
         }
 
         void beforeConstruct(std::vector<Object> &objects) override {
-            convertedInput = new char*[N];
+            convertedInput = new char*[benchmarkConfig.N];
             for (size_t i = 0; i < objects.size(); i++) {
                 convertedInput[i] = objects.at(i).key.data();
-                assert(objects.at(i).length == objectSize);
+                assert(objects.at(i).length == benchmarkConfig.objectSize);
             }
         }
 
         void construct(std::vector<Object> &objects) override {
-            cmph_io_adapter_t *source = cmph_io_vector_adapter(convertedInput, N);
+            (void) objects;
+            cmph_io_adapter_t *source = cmph_io_vector_adapter(convertedInput, benchmarkConfig.N);
             cmph_config_t *config = cmph_config_new(source);
             cmph_config_set_algo(config, CMPH_CHD_PH);
             cmph_config_set_verbosity(config, 0);
@@ -51,12 +52,12 @@ class ChdComparisonItem : public StoreComparisonItem {
                 throw std::logic_error("Could not construct");
             }
             float size_bits = 8.0f * (float)cmph_packed_size(mphf);
-            std::cout<<"Size: "<< size_bits / (double)N<<"/object, "
-                    << size_bits / (double)(N / kPerfect)<<"/block"<<std::endl;
+            std::cout<<"Size: "<< size_bits / (double)benchmarkConfig.N<<"/object, "
+                    << size_bits / (double)(benchmarkConfig.N / kPerfect)<<"/block"<<std::endl;
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 cmph_uint32 result = cmph_search(mphf, keysQueryOrder[i].data(), keysQueryOrder[i].length());
                 DO_NOT_OPTIMIZE(result);
             }

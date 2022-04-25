@@ -9,37 +9,39 @@
 #include "competitors/ParallelCuckoo.h"
 
 int main() {
-    for (size_t N = 4e5; N <= 52e5; N += 4e5) {
+    BenchmarkConfig benchmarkConfig;
+
+    for (benchmarkConfig.N = 4e5; benchmarkConfig.N <= 52e5; benchmarkConfig.N += 4e5) {
         for (size_t i = 1; i <= 3; i++) {
-            size_t numQueries = 1e6;
+            benchmarkConfig.numQueries = 1e6;
 
             // Full data store
-            {SiltComparisonItem(N, numQueries, false).performBenchmark();}
-            {SiltComparisonItem(N, numQueries, true).performBenchmark();}
-            {LevelDBComparisonItem(N, numQueries).performBenchmark();}
-            {RocksDBComparisonItem(N, numQueries, false).performBenchmark();}
-            {RocksDBComparisonItem(N, numQueries, true).performBenchmark();}
-            {PaCHashComparisonItem(N, numQueries, false).performBenchmark();}
-            {PaCHashComparisonItem(N, numQueries, true).performBenchmark();}
-            {SeparatorComparisonItem(N, numQueries, false).performBenchmark();}
-            {SeparatorComparisonItem(N, numQueries, true).performBenchmark();}
-            {CuckooComparisonItem(N, numQueries, true).performBenchmark();}
-            {CuckooComparisonItem(N, numQueries, false).performBenchmark();}
+            {SiltComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {SiltComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {LevelDBComparisonItem(benchmarkConfig).performBenchmark();}
+            {RocksDBComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {RocksDBComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {PaCHashComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {PaCHashComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {SeparatorComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {SeparatorComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {CuckooComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {CuckooComparisonItem(benchmarkConfig, false).performBenchmark();}
 
             // Static part of dynamic stores
-            {LevelDBSingleTableComparisonItem(N, numQueries).performBenchmark();}
-            {SiltComparisonItemSortedStore(N, numQueries, false).performBenchmark();}
-            {SiltComparisonItemSortedStore(N, numQueries, true).performBenchmark();}
+            {LevelDBSingleTableComparisonItem(benchmarkConfig).performBenchmark();}
+            {SiltComparisonItemSortedStore(benchmarkConfig, false).performBenchmark();}
+            {SiltComparisonItemSortedStore(benchmarkConfig, true).performBenchmark();}
 
             // Index microbenchmark
-            {SiltComparisonItemSortedStoreMicro(N, numQueries).performBenchmark();}
-            numQueries = numQueries * 5;
-            {PaCHashMicroIndexComparisonItem(N, numQueries).performBenchmark();}
-            {LevelDBSingleTableMicroIndexComparisonItem(N, numQueries).performBenchmark();}
-            {RecSplitComparisonItem(N, numQueries).performBenchmark();}
-            {ChdComparisonItem(N, numQueries).performBenchmark();}
-            {StdUnorderedMapComparisonItem(N, numQueries).performBenchmark();}
-            {SeparatorMicroIndexComparisonItem(N, numQueries).performBenchmark();}
+            {SiltComparisonItemSortedStoreMicro(benchmarkConfig).performBenchmark();}
+            benchmarkConfig.numQueries *= 5;
+            {PaCHashMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
+            {LevelDBSingleTableMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
+            {RecSplitComparisonItem(benchmarkConfig).performBenchmark();}
+            {ChdComparisonItem(benchmarkConfig).performBenchmark();}
+            {StdUnorderedMapComparisonItem(benchmarkConfig).performBenchmark();}
+            {SeparatorMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
         }
     }
     return 0;

@@ -7,9 +7,9 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/pachash-test";
         pachash::PaCHashObjectStore<8> objectStore;
 
-        PaCHashComparisonItemBase(std::string method, size_t N, size_t numQueries, bool directIo)
-            : StoreComparisonItem(std::move(method), N, numQueries),
-                objectStore(1, filename, directIo ? O_DIRECT : 0) {
+        PaCHashComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(std::move(method), benchmarkConfig),
+                    objectStore(1, filename, directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -43,13 +43,13 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
 
 class PaCHashMicroIndexComparisonItem : public PaCHashComparisonItemBase {
     public:
-        PaCHashMicroIndexComparisonItem(size_t N, size_t numQueries)
-                : PaCHashComparisonItemBase("pachash_micro_index", N, numQueries, false) {
+        explicit PaCHashMicroIndexComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : PaCHashComparisonItemBase("pachash_micro_index", benchmarkConfig, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             std::tuple<size_t, size_t> accessDetails;
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
                 objectStore.index->locate(objectStore.key2bin(key), accessDetails);
                 DO_NOT_OPTIMIZE(accessDetails);
@@ -64,8 +64,8 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        PaCHashComparisonItem(size_t N, size_t numQueries, bool directIo)
-            : PaCHashComparisonItemBase(directIo ? "pachash_direct" : "pachash", N, numQueries, directIo) {
+        PaCHashComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : PaCHashComparisonItemBase(directIo ? "pachash_direct" : "pachash", benchmarkConfig, directIo) {
         }
 
         void beforeQuery() override {
@@ -86,7 +86,7 @@ class PaCHashComparisonItem : public PaCHashComparisonItemBase {
             objectStoreView->submit();
 
             // Submit new queries as old ones complete
-            while (handled < numQueries) {
+            while (handled < benchmarkConfig.numQueries) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     assert(handle->resultPtr != nullptr);

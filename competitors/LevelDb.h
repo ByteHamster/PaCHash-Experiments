@@ -13,8 +13,8 @@ class LevelDBComparisonItem : public StoreComparisonItem {
         leveldb::DB *db = nullptr;
         const std::string filename = "/data02/hplehmann/leveldb-test";
 
-        LevelDBComparisonItem(size_t N, size_t numQueries) :
-                StoreComparisonItem("leveldb", N, numQueries) {
+        explicit LevelDBComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : StoreComparisonItem("leveldb", benchmarkConfig) {
             // Does not support direct IO
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
@@ -53,7 +53,7 @@ class LevelDBComparisonItem : public StoreComparisonItem {
             leveldb::ReadOptions readOptions;
             std::string result;
             leveldb::Status status;
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 status = db->Get(readOptions, keysQueryOrder[i], &result);
                 DO_NOT_OPTIMIZE(status);
                 assert(status.ok());
@@ -77,8 +77,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         leveldb::RandomAccessFile *raFile = nullptr;
         leveldb::ReadOptions readOptions;
 
-        LevelDBSingleTableComparisonItemBase(std::string name, size_t N, size_t numQueries) :
-                StoreComparisonItem(std::move(name), N, numQueries) {
+        LevelDBSingleTableComparisonItemBase(std::string name, const BenchmarkConfig& benchmarkConfig)
+                : StoreComparisonItem(std::move(name), benchmarkConfig) {
             options.compression = leveldb::CompressionType::kNoCompression;
         }
 
@@ -122,13 +122,13 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
 
 class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableComparisonItem(size_t N, size_t numQueries)
-            : LevelDBSingleTableComparisonItemBase("leveldb_singletable", N, numQueries) {
+        explicit LevelDBSingleTableComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : LevelDBSingleTableComparisonItemBase("leveldb_singletable", benchmarkConfig) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 status = table->InternalGet(readOptions, keysQueryOrder[i], nullptr, handleResult);
                 DO_NOT_OPTIMIZE(status);
                 assert(status.ok());
@@ -138,13 +138,13 @@ class LevelDBSingleTableComparisonItem : public LevelDBSingleTableComparisonItem
 
 class LevelDBSingleTableMicroIndexComparisonItem : public LevelDBSingleTableComparisonItemBase {
     public:
-        LevelDBSingleTableMicroIndexComparisonItem(size_t N, size_t numQueries)
-            : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", N, numQueries) {
+        explicit LevelDBSingleTableMicroIndexComparisonItem(const BenchmarkConfig& benchmarkConfig)
+            : LevelDBSingleTableComparisonItemBase("leveldb_singletable_index_only", benchmarkConfig) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             leveldb::Status status;
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 status = table->InternalGetIndexOnly(readOptions, keysQueryOrder[i]);
                 DO_NOT_OPTIMIZE(status);
             }

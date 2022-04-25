@@ -6,8 +6,8 @@ class RecSplitComparisonItem : public StoreComparisonItem {
         sux::function::RecSplit<8> *recSplit = nullptr;
         std::vector<std::string> keysOnly;
 
-        RecSplitComparisonItem(size_t N, size_t numQueries) :
-                StoreComparisonItem("recsplit", N, numQueries) {
+        explicit RecSplitComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : StoreComparisonItem("recsplit", benchmarkConfig) {
         }
 
         bool supportsVariableSize() override {
@@ -15,9 +15,7 @@ class RecSplitComparisonItem : public StoreComparisonItem {
         }
 
         ~RecSplitComparisonItem() override {
-            if (recSplit != nullptr) {
-                delete recSplit;
-            }
+            delete recSplit;
         }
 
         size_t externalSpaceUsage() override {
@@ -28,11 +26,12 @@ class RecSplitComparisonItem : public StoreComparisonItem {
             keysOnly.reserve(objects.size());
             for (const Object &object : objects) {
                 keysOnly.emplace_back(object.key);
-                assert(object.length == objectSize);
+                assert(object.length == benchmarkConfig.objectSize);
             }
         }
 
         void construct(std::vector<Object> &objects) override {
+            (void) objects;
             recSplit = new sux::function::RecSplit<8>(keysOnly, 2000);
         }
 
@@ -42,7 +41,7 @@ class RecSplitComparisonItem : public StoreComparisonItem {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 size_t result = recSplit->operator()(keysQueryOrder[i]);
                 DO_NOT_OPTIMIZE(result);
             }

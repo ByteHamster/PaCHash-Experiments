@@ -7,9 +7,9 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
         const char* filename = "/data02/hplehmann/separator-test";
         pachash::SeparatorObjectStore<6> objectStore;
 
-        SeparatorComparisonItemBase(std::string method, size_t N, size_t numQueries, bool directIo)
-            : StoreComparisonItem(std::move(method), N, numQueries),
-                objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
+        SeparatorComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(std::move(method), benchmarkConfig),
+                    objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -43,12 +43,12 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
 
 class SeparatorMicroIndexComparisonItem : public SeparatorComparisonItemBase {
     public:
-        SeparatorMicroIndexComparisonItem(size_t N, size_t numQueries)
-                : SeparatorComparisonItemBase("separator_micro_index", N, numQueries, false) {
+        explicit SeparatorMicroIndexComparisonItem(const BenchmarkConfig& benchmarkConfig)
+                : SeparatorComparisonItemBase("separator_micro_index", benchmarkConfig, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
                 size_t block = objectStore.findBlockToAccess(key);
                 DO_NOT_OPTIMIZE(block);
@@ -63,8 +63,8 @@ class SeparatorComparisonItem : public SeparatorComparisonItemBase {
         std::vector<pachash::QueryHandle*> queryHandles;
         size_t depth = 128;
 
-        SeparatorComparisonItem(size_t N, size_t numQueries, bool directIo)
-            : SeparatorComparisonItemBase(directIo ? "separator_direct" : "separator", N, numQueries, directIo) {
+        explicit SeparatorComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : SeparatorComparisonItemBase(directIo ? "separator_direct" : "separator", benchmarkConfig, directIo) {
         }
 
         void beforeQuery() override {
@@ -85,7 +85,7 @@ class SeparatorComparisonItem : public SeparatorComparisonItemBase {
             objectStoreView->submit();
 
             // Submit new queries as old ones complete
-            while (handled < numQueries) {
+            while (handled < benchmarkConfig.numQueries) {
                 pachash::QueryHandle *handle = objectStoreView->awaitAny();
                 do {
                     assert(handle->resultPtr != nullptr);

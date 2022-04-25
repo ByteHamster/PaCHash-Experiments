@@ -17,15 +17,15 @@ class SiltComparisonItemBase : public StoreComparisonItem {
         fawn::FawnDS_Combi* store;
         std::string filename = "/data02/hplehmann/silt-test";
 
-        SiltComparisonItemBase(std::string name, size_t N, size_t numQueries, bool directIo) :
-                StoreComparisonItem(std::move(name), N, numQueries) {
+        SiltComparisonItemBase(std::string name, const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(std::move(name), benchmarkConfig) {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../competitors/siltConfig.xml");
-            config->SetStringValue("data-len", std::to_string(objectSize));
+            config->SetStringValue("data-len", std::to_string(benchmarkConfig.objectSize));
             char buf[1024];
-            snprintf(buf, sizeof(buf), "%zu", N);
+            snprintf(buf, sizeof(buf), "%zu", benchmarkConfig.N);
             config->SetStringValue("size", buf);
             config->SetStringValue("/fawnds/store0/hashtable/use-buffered-io-only", directIo ? "0" : "1");
             config->SetStringValue("/fawnds/store0/datastore/use-buffered-io-only", directIo ? "0" : "1");
@@ -54,8 +54,8 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
         void construct(std::vector<Object> &objects) override {
             for (const Object &object : objects) {
-                assert(object.length == objectSize);
-                fawn::ConstRefValue value(emptyValuePointer, objectSize);
+                assert(object.length == benchmarkConfig.objectSize);
+                fawn::ConstRefValue value(emptyValuePointer, benchmarkConfig.objectSize);
                 fawn::FawnDS_Return res = store->Put(fawn::ConstRefValue(object.key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
@@ -65,12 +65,12 @@ class SiltComparisonItemBase : public StoreComparisonItem {
 
 class SiltComparisonItem : public SiltComparisonItemBase {
     public:
-        SiltComparisonItem(size_t N, size_t numQueries, bool directIo) :
-                SiltComparisonItemBase(directIo ? "silt_direct" : "silt", N, numQueries, directIo) {
+        SiltComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : SiltComparisonItemBase(directIo ? "silt_direct" : "silt", benchmarkConfig, directIo) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 fawn::Value valueRead;
                 fawn::FawnDS_Return res = store->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
                 DO_NOT_OPTIMIZE(res);
@@ -85,15 +85,15 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         std::string filename = "/data02/hplehmann/silt-test-sorted";
         fawn::FawnDS* sorter = nullptr;
 
-        SiltComparisonItemSortedStoreBase(std::string name, size_t N, size_t numQueries, bool directIo) :
-                StoreComparisonItem(std::move(name), N, numQueries) {
+        SiltComparisonItemSortedStoreBase(std::string name, const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(std::move(name), benchmarkConfig) {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
             auto* config = new fawn::Configuration("../competitors/siltConfigSorted.xml");
-            config->SetStringValue("data-len", std::to_string(objectSize));
+            config->SetStringValue("data-len", std::to_string(benchmarkConfig.objectSize));
             char buf[1024];
-            snprintf(buf, sizeof(buf), "%zu", N);
+            snprintf(buf, sizeof(buf), "%zu", benchmarkConfig.N);
             config->SetStringValue("size", buf);
             config->SetStringValue("/fawnds/datastore/use-buffered-io-only", directIo ? "0" : "1");
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
@@ -117,7 +117,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         }
 
         void beforeConstruct(std::vector<Object> &objects) override {
-            fawn::Configuration *sorter_config = new fawn::Configuration();
+            (void) objects;
+            auto *sorter_config = new fawn::Configuration();
 
             char buf[1024];
 
@@ -134,13 +135,13 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
             if (sorter_config->CreateNodeAndAppend("data-len", ".") != 0)
                 assert(false);
-            snprintf(buf, sizeof(buf), "%zu", objectSize);
+            snprintf(buf, sizeof(buf), "%zu", benchmarkConfig.objectSize);
             if (sorter_config->SetStringValue("data-len", buf) != 0)
                 assert(false);
 
             if (sorter_config->CreateNodeAndAppend("size", ".") != 0)
                 assert(false);
-            snprintf(buf, sizeof(buf), "%zu", N);
+            snprintf(buf, sizeof(buf), "%zu", benchmarkConfig.N);
             if (sorter_config->SetStringValue("size", buf) != 0)
                 assert(false);
 
@@ -158,8 +159,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
         void construct(std::vector<Object> &objects) override {
             fawn::FawnDS_Return res;
             for (const Object &object : objects) {
-                assert(object.length == objectSize);
-                fawn::ConstRefValue value(emptyValuePointer, objectSize);
+                assert(object.length == benchmarkConfig.objectSize);
+                fawn::ConstRefValue value(emptyValuePointer, benchmarkConfig.objectSize);
                 res = sorter->Put(fawn::ConstRefValue(object.key), value);
                 assert(res == fawn::FawnDS_Return::OK);
             }
@@ -185,13 +186,13 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
 
 class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
     public:
-        SiltComparisonItemSortedStore(size_t N, size_t numQueries, bool directIo) :
-                SiltComparisonItemSortedStoreBase(directIo ? "silt_sorted_direct" : "silt_sorted",
-                                                  N, numQueries, directIo) {
+        SiltComparisonItemSortedStore(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : SiltComparisonItemSortedStoreBase(
+                    directIo ? "silt_sorted_direct" : "silt_sorted", benchmarkConfig, directIo) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 fawn::Value valueRead;
                 fawn::FawnDS_Return res = sortedStore->Get(fawn::ConstRefValue(keysQueryOrder[i]), valueRead);
                 DO_NOT_OPTIMIZE(res);
@@ -203,12 +204,12 @@ class SiltComparisonItemSortedStore : public SiltComparisonItemSortedStoreBase {
 
 class SiltComparisonItemSortedStoreMicro : public SiltComparisonItemSortedStoreBase {
     public:
-        SiltComparisonItemSortedStoreMicro(size_t N, size_t numQueries) :
-                SiltComparisonItemSortedStoreBase("silt_sorted_micro", N, numQueries, false) {
+        explicit SiltComparisonItemSortedStoreMicro(const BenchmarkConfig& benchmarkConfig)
+                : SiltComparisonItemSortedStoreBase("silt_sorted_micro", benchmarkConfig, false) {
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
-            for (size_t i = 0; i < numQueries; i++) {
+            for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
                 fawn::Value valueRead;
                 size_t res = sortedStore->GetIndexOnly(fawn::ConstRefValue(keysQueryOrder[i]));
                 DO_NOT_OPTIMIZE(res);

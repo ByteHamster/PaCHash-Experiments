@@ -12,8 +12,8 @@ class RocksDBComparisonItem : public StoreComparisonItem {
         std::string filePath = "/data02/hplehmann/rocksdb-test";
         rocksdb::Options options;
 
-        RocksDBComparisonItem(size_t N, size_t numQueries, bool directIo) :
-                StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", N, numQueries) {
+        RocksDBComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
+                : StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", benchmarkConfig) {
             this->directIo = directIo;
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;
@@ -72,7 +72,7 @@ class RocksDBComparisonItem : public StoreComparisonItem {
             std::vector<rocksdb::Status> statuses(batchSize);
 
             size_t handled = 0;
-            while (handled < numQueries) {
+            while (handled < benchmarkConfig.numQueries) {
                 for (size_t k = 0; k < batchSize; k++) {
                     querySlices.at(k) = keysQueryOrder[handled];
                     handled++;

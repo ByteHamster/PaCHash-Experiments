@@ -13,13 +13,13 @@
 		<id></id>
 		<key-len></key-len>
 		<data-len></data-len>
-		<file>/data02/hplehmann/silt-test/front_file_header</file>
+		<file></file>
 
 		<hashtable>
 			<type>cuckoo</type>
 			<id></id>
 			<use-buffered-io-only>0</use-buffered-io-only>
-			<file>/data02/hplehmann/silt-test/front_hashtable</file>
+			<file></file>
 			<hash-table-size>131072</hash-table-size>
 		</hashtable>
 
@@ -28,7 +28,7 @@
 			<id></id>
 			<data-len></data-len>
 			<use-buffered-io-only>0</use-buffered-io-only>
-			<file>/data02/hplehmann/silt-test/front_datastore</file>
+			<file></file>
 		</datastore>
 	</store0>
 
@@ -37,13 +37,13 @@
 		<id></id>
 		<key-len></key-len>
 		<data-len></data-len>
-		<file>/data02/hplehmann/silt-test/middle_file_header</file>
+		<file></file>
 
 		<hashtable>
 			<type>cuckoo</type>
 			<id></id>
 			<use-buffered-io-only>0</use-buffered-io-only>
-			<file>/data02/hplehmann/silt-test/middle_hashtable</file>
+			<file></file>
 			<hash-table-size>131072</hash-table-size>
 			<use-offset>0</use-offset>
 		</hashtable>
@@ -53,7 +53,7 @@
 			<id></id>
 			<data-len></data-len>
 			<use-buffered-io-only>0</use-buffered-io-only>
-			<file>/data02/hplehmann/silt-test/middle_datastore</file>
+			<file></file>
 		</datastore>
 	</store1>
 
@@ -72,7 +72,7 @@
 			<id></id>
 			<data-len></data-len>
 			<use-buffered-io-only>0</use-buffered-io-only>
-			<file>/data02/hplehmann/silt-test/back_datastore</file>
+			<file></file>
 		</datastore>
 	</store2>
 

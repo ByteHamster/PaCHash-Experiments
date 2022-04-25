@@ -4,12 +4,13 @@
 
 class SeparatorComparisonItemBase : public StoreComparisonItem {
     public:
-        const char* filename = "/data02/hplehmann/separator-test";
+        const std::string filename;
         pachash::SeparatorObjectStore<6> objectStore;
 
         SeparatorComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
                 : StoreComparisonItem(std::move(method), benchmarkConfig),
-                    objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
+                    filename(benchmarkConfig.basePath + "separator-test"),
+                    objectStore(0.95, filename.c_str(), directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -18,11 +19,11 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
         }
 
         ~SeparatorComparisonItemBase() override {
-            unlink(filename);
+            unlink(filename.c_str());
         }
 
         size_t externalSpaceUsage() override {
-            return fileSize(filename);
+            return fileSize(filename.c_str());
         }
 
         void construct(std::vector<Object> &objects) override {

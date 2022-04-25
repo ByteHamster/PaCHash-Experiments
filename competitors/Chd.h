@@ -52,8 +52,8 @@ class ChdComparisonItem : public StoreComparisonItem {
                 throw std::logic_error("Could not construct");
             }
             float size_bits = 8.0f * (float)cmph_packed_size(mphf);
-            std::cout<<"Size: "<< size_bits / (double)benchmarkConfig.N<<"/object, "
-                    << size_bits / (double)(benchmarkConfig.N / kPerfect)<<"/block"<<std::endl;
+            std::cout << "Size: "<< size_bits / (double)benchmarkConfig.N << "/object, "
+                      << size_bits / (double)(benchmarkConfig.N / kPerfect) << "/block"<<std::endl;
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {

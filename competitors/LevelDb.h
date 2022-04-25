@@ -11,10 +11,10 @@ class LevelDBComparisonItem : public StoreComparisonItem {
     public:
         leveldb::Options options;
         leveldb::DB *db = nullptr;
-        const std::string filename = "/data02/hplehmann/leveldb-test";
+        const std::string filename;
 
         explicit LevelDBComparisonItem(const BenchmarkConfig& benchmarkConfig)
-                : StoreComparisonItem("leveldb", benchmarkConfig) {
+                : StoreComparisonItem("leveldb", benchmarkConfig), filename(benchmarkConfig.basePath + "leveldb-test") {
             // Does not support direct IO
             options.compression = leveldb::CompressionType::kNoCompression;
             options.create_if_missing = true;
@@ -70,7 +70,7 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
             (void) value;
         }
 
-        std::string filename = "/data02/hplehmann/leveldb-test-single";
+        const std::string filename;
         size_t size = 0;
         leveldb::Options options;
         leveldb::Table *table = nullptr;
@@ -78,7 +78,8 @@ class LevelDBSingleTableComparisonItemBase : public StoreComparisonItem {
         leveldb::ReadOptions readOptions;
 
         LevelDBSingleTableComparisonItemBase(std::string name, const BenchmarkConfig& benchmarkConfig)
-                : StoreComparisonItem(std::move(name), benchmarkConfig) {
+                : StoreComparisonItem(std::move(name), benchmarkConfig),
+                    filename(benchmarkConfig.basePath + "leveldb-test-single") {
             options.compression = leveldb::CompressionType::kNoCompression;
         }
 

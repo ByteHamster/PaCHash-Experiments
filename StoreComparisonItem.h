@@ -39,7 +39,7 @@ struct BenchmarkConfig {
     size_t objectSize = 256;
     size_t numQueries;
     bool variableSize = false;
-    std::string basePath = "/data02/hplehmann/";
+    std::string basePath;
 };
 
 class StoreComparisonItem {

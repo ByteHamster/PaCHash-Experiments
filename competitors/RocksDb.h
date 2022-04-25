@@ -9,11 +9,12 @@
 class RocksDBComparisonItem : public StoreComparisonItem {
     public:
         rocksdb::DB* db = nullptr;
-        std::string filePath = "/data02/hplehmann/rocksdb-test";
+        const std::string filePath;
         rocksdb::Options options;
 
         RocksDBComparisonItem(const BenchmarkConfig& benchmarkConfig, bool directIo)
-                : StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", benchmarkConfig) {
+                : StoreComparisonItem(directIo ? "rocksdb_direct" : "rocksdb", benchmarkConfig),
+                    filePath(benchmarkConfig.basePath + "rocksdb-test") {
             this->directIo = directIo;
             options.create_if_missing = true;
             rocksdb::BlockBasedTableOptions table_options;

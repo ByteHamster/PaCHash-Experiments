@@ -4,12 +4,13 @@
 
 class PaCHashComparisonItemBase : public StoreComparisonItem {
     public:
-        const char* filename = "/data02/hplehmann/pachash-test";
+        const std::string filename;
         pachash::PaCHashObjectStore<8> objectStore;
 
         PaCHashComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
                 : StoreComparisonItem(std::move(method), benchmarkConfig),
-                    objectStore(1, filename, directIo ? O_DIRECT : 0) {
+                    filename(benchmarkConfig.basePath + "pachash-test"),
+                    objectStore(1, filename.c_str(), directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -18,11 +19,11 @@ class PaCHashComparisonItemBase : public StoreComparisonItem {
         }
 
         ~PaCHashComparisonItemBase() override {
-            unlink(filename);
+            unlink(filename.c_str());
         }
 
         size_t externalSpaceUsage() override {
-            return fileSize(filename);
+            return fileSize(filename.c_str());
         }
 
         void construct(std::vector<Object> &objects) override {

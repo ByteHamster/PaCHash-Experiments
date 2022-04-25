@@ -10,6 +10,7 @@
 
 int main() {
     BenchmarkConfig benchmarkConfig;
+    benchmarkConfig.basePath = "/data02/hplehmann/";
 
     for (benchmarkConfig.N = 4e5; benchmarkConfig.N <= 52e5; benchmarkConfig.N += 4e5) {
         for (size_t i = 1; i <= 3; i++) {

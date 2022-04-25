@@ -4,12 +4,13 @@
 
 class CuckooComparisonItemBase : public StoreComparisonItem {
     public:
-        const char* filename = "/data02/hplehmann/cuckoo-test";
+        const std::string filename;
         pachash::ParallelCuckooObjectStore objectStore;
 
         CuckooComparisonItemBase(std::string method, const BenchmarkConfig& benchmarkConfig, bool directIo)
                 : StoreComparisonItem(std::move(method), benchmarkConfig),
-                    objectStore(0.95, filename, directIo ? O_DIRECT : 0) {
+                    filename(benchmarkConfig.basePath + "cuckoo-test"),
+                    objectStore(0.95, filename.c_str(), directIo ? O_DIRECT : 0) {
             this->directIo = directIo;
         }
 
@@ -18,11 +19,11 @@ class CuckooComparisonItemBase : public StoreComparisonItem {
         }
 
         ~CuckooComparisonItemBase() override {
-            unlink(filename);
+            unlink(filename.c_str());
         }
 
         size_t externalSpaceUsage() override {
-            return fileSize(filename);
+            return fileSize(filename.c_str());
         }
 
         void construct(std::vector<Object> &objects) override {

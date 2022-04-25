@@ -15,10 +15,11 @@
 class SiltComparisonItemBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_Combi* store;
-        std::string filename = "/data02/hplehmann/silt-test";
+        const std::string filename;
 
         SiltComparisonItemBase(std::string name, const BenchmarkConfig& benchmarkConfig, bool directIo)
-                : StoreComparisonItem(std::move(name), benchmarkConfig) {
+                : StoreComparisonItem(std::move(name), benchmarkConfig),
+                    filename(benchmarkConfig.basePath + "silt-test") {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
@@ -32,6 +33,13 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             config->SetStringValue("/fawnds/store1/hashtable/use-buffered-io-only", directIo ? "0" : "1");
             config->SetStringValue("/fawnds/store1/datastore/use-buffered-io-only", directIo ? "0" : "1");
             config->SetStringValue("/fawnds/store2/datastore/use-buffered-io-only", directIo ? "0" : "1");
+            config->SetStringValue("/fawnds/store0/file", filename + "/front_file_header");
+            config->SetStringValue("/fawnds/store0/hashtable/file", filename + "/front_hashtable");
+            config->SetStringValue("/fawnds/store0/datastore/file", filename + "/front_datastore");
+            config->SetStringValue("/fawnds/store1/file", filename + "/middle_file_header");
+            config->SetStringValue("/fawnds/store1/hashtable/file", filename + "/middle_hashtable");
+            config->SetStringValue("/fawnds/store1/datastore/file", filename + "/middle_datastore");
+            config->SetStringValue("/fawnds/store2/datastore/file", filename + "/back_datastore");
             store = dynamic_cast<fawn::FawnDS_Combi *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = store->Create();
             assert(res == fawn::FawnDS_Return::OK);
@@ -82,11 +90,12 @@ class SiltComparisonItem : public SiltComparisonItemBase {
 class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
     public:
         fawn::FawnDS_SF_Ordered_Trie* sortedStore;
-        std::string filename = "/data02/hplehmann/silt-test-sorted";
+        const std::string filename;
         fawn::FawnDS* sorter = nullptr;
 
         SiltComparisonItemSortedStoreBase(std::string name, const BenchmarkConfig& benchmarkConfig, bool directIo)
-                : StoreComparisonItem(std::move(name), benchmarkConfig) {
+                : StoreComparisonItem(std::move(name), benchmarkConfig),
+                    filename(benchmarkConfig.basePath + "silt-test-sorted") {
             this->directIo = directIo;
             system(("rm -rf " + filename).c_str());
             system(("mkdir -p " + filename).c_str());
@@ -96,6 +105,7 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             snprintf(buf, sizeof(buf), "%zu", benchmarkConfig.N);
             config->SetStringValue("size", buf);
             config->SetStringValue("/fawnds/datastore/use-buffered-io-only", directIo ? "0" : "1");
+            config->SetStringValue("/fawnds/datastore/file", filename + "/store");
             sortedStore = dynamic_cast<fawn::FawnDS_SF_Ordered_Trie *>(fawn::FawnDS_Factory::New(config));
             fawn::FawnDS_Return res = sortedStore->Create();
             assert(res == fawn::FawnDS_Return::OK);

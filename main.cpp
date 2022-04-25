@@ -1,3 +1,4 @@
+#include <tlx/cmdline_parser.hpp>
 #include "competitors/LevelDb.h"
 #include "competitors/RocksDb.h"
 #include "competitors/Silt.h"
@@ -8,8 +9,15 @@
 #include "competitors/Chd.h"
 #include "competitors/ParallelCuckoo.h"
 
-int main() {
+int main(int argc, char** argv) {
     BenchmarkConfig benchmarkConfig;
+
+    tlx::CmdlineParser cmd;
+    cmd.add_string('p', "path", benchmarkConfig.basePath, "Path to directory to store files in");
+    cmd.add_flag('v', "variable_size", benchmarkConfig.variableSize, "Use variable size objects");
+    if (!cmd.process(argc, argv)) {
+        return 1;
+    }
     benchmarkConfig.basePath = "/data02/hplehmann/";
 
     for (benchmarkConfig.N = 4e5; benchmarkConfig.N <= 52e5; benchmarkConfig.N += 4e5) {

@@ -9,6 +9,7 @@ To compile and test, execute something like the following:
 
 ```
 mkdir build-pachash
+cd build-pachash
 cmake -DCMAKE_BUILD_TYPE=Release ../external/pachash
 make
 ../scripts/objectSizeBlocksFetched.sh

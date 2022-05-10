@@ -25,13 +25,16 @@ Included competitors:
 - RecSplit
 - CHD
 
-You need to apply the patches in the `patches` directory to add modify the object stores,
+You need to apply the patches in the `patches` directory to modify the object stores,
 so that we can benchmark their internal index data structures.
 You can use the included helper script for that.
 
 To compile and test, execute something like the following:
 
 ```
+cd patches
+./apply-patches.sh
+cd ..
 mkdir build
 cd build 
 cmake -DCMAKE_BUILD_TYPE=Release ..

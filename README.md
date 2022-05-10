@@ -41,3 +41,8 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ./ObjectStoreComparison --path /path/to/folder/on/ssd
 ```
+
+### License
+The competitors in the `external` folder are licensed under their respective license.
+The benchmark code is licensed under the [GPLv3](/LICENSE).
+If you use the project in an academic context or publication, please cite our paper.

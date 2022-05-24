@@ -16,3 +16,6 @@
 [submodule "external/cmph"]
 	path = external/cmph
 	url = https://github.com/bonitao/cmph.git
+[submodule "external/pthash"]
+	path = external/pthash
+	url = https://github.com/jermp/pthash.git

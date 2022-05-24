@@ -64,3 +64,5 @@ list(FILTER cmphSources EXCLUDE REGEX ".*cmph/src/(bdz_gen_lookup_table|bm_numbe
 add_library(Cmph SHARED ${cmphSources})
 target_include_directories(Cmph PUBLIC external/cmph/src)
 target_link_libraries(ObjectStoreComparison PRIVATE Cmph)
+
+target_include_directories(ObjectStoreComparison PUBLIC external/pthash/include)

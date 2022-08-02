@@ -8,6 +8,7 @@ function testMethod() {
             ./Query --input_file $1 --num_queries 3M --index_type eliasFano -a $a
             #./Query --input_file $1 --num_queries 3M --index_type uncompressedBitVector -a $a
             ./Query --input_file $1 --num_queries 1M --index_type compressedBitVector -a $a
+            ./Query --input_file $1 --num_queries 1M --index_type laVector -a $a
         #done
     done
 }

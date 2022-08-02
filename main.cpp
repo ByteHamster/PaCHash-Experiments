@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
             benchmarkConfig.numQueries = 1e6;
 
             // Full data store
-            /*{SiltComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {SiltComparisonItem(benchmarkConfig, false).performBenchmark();}
             {SiltComparisonItem(benchmarkConfig, true).performBenchmark();}
             {LevelDBComparisonItem(benchmarkConfig).performBenchmark();}
             {RocksDBComparisonItem(benchmarkConfig, false).performBenchmark();}
@@ -48,11 +48,11 @@ int main(int argc, char** argv) {
             benchmarkConfig.numQueries *= 5;
             {PaCHashMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
             {LevelDBSingleTableMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
-            {RecSplitComparisonItem(benchmarkConfig).performBenchmark();}*/
+            {RecSplitComparisonItem(benchmarkConfig).performBenchmark();}
             {PTHashComparisonItem(benchmarkConfig).performBenchmark();}
-            /*{ChdComparisonItem(benchmarkConfig).performBenchmark();}
+            {ChdComparisonItem(benchmarkConfig).performBenchmark();}
             {StdUnorderedMapComparisonItem(benchmarkConfig).performBenchmark();}
-            {SeparatorMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}*/
+            {SeparatorMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
         }
     }
     return 0;

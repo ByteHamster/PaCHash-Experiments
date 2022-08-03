@@ -7,7 +7,7 @@ cd /opt/pachash/build
 # Build plot
 cd /opt/pachash/scripts
 cp /opt/pachash/build/comparisonPlot.txt comparisonPlot.txt
-/opt/sqlplot-tools/build/src/sqlplot-tools largeComparisonPlot.tex
+/opt/sqlplot-tools/build/src/sqlplot-tools comparisonPlot.tex
 pdflatex comparisonPlot.tex
 cp comparisonPlot.pdf /opt/dockerVolume
 cp comparisonPlot.txt /opt/dockerVolume

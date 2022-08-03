@@ -1,0 +1,27 @@
+############ fixed size ############
+RESULT store_code=cmph								store_name=CHD (16-perfect)			plots=internal,construction,index,legend				attr=color=colorChd,mark=oplus,densely dotted,mark options={solid}					sort_plot=1		sort_legend=1
+RESULT store_code=recsplit							store_name=RecSplit					plots=internal,construction,legend,index				attr=color=colorRecSplit,mark=x,densely dotted,mark options={solid}			sort_plot=1		sort_legend=1
+RESULT store_code=silt								store_name=SILT						plots=internal,external,construction,buffered,legend	attr=color=colorSilt,mark=square,densely dotted,mark options={solid}						sort_plot=1		sort_legend=1
+RESULT store_code=silt_direct						store_name=SILT (Direct)			plots=direct											attr=color=colorSilt,mark=square,densely dotted,mark options={solid}						sort_plot=1		sort_legend=1
+RESULT store_code=silt_sorted						store_name=SILT (Static part)		plots=internal,external,construction,buffered,legend	attr=color=colorSilt,mark=otimes,densely dotted,mark options={solid}						sort_plot=1		sort_legend=1
+RESULT store_code=silt_sorted_direct				store_name=SILT (Static, Direct)	plots=direct											attr=color=colorSilt,mark=otimes,densely dotted,mark options={solid}						sort_plot=1		sort_legend=1
+RESULT store_code=silt_sorted_micro					store_name=SILT (Index only)		plots=index												attr=color=colorSilt,mark=otimes,densely dotted,mark options={solid}						sort_plot=1		sort_legend=1
+RESULT store_code=pthash							store_name=PTHash 					plots=internal,construction,legend,index				attr=color=colorPthash,mark=|,densely dotted,mark options={solid}			sort_plot=1		sort_legend=1
+
+############ variable size ############
+RESULT store_code=leveldb							store_name=LevelDB					plots=internal,external,construction,buffered,legend,legendVariable	attr=color=colorLevelDb,mark=o					sort_plot=1		sort_legend=1
+RESULT store_code=leveldb_singletable				store_name=LevelDB (Static part)	plots=internal,external,construction,buffered,legend,legendVariable	attr=color=colorLevelDb,mark=triangle			sort_plot=1		sort_legend=1
+RESULT store_code=leveldb_singletable_index_only	store_name=LevelDB (Index only)		plots=index												attr=color=colorLevelDb,mark=triangle			sort_plot=1		sort_legend=1
+RESULT store_code=rocksdb							store_name=RocksDB					plots=internal,external,construction,buffered,legend,legendVariable	attr=color=colorRocksDb,mark=diamond			sort_plot=1		sort_legend=1
+RESULT store_code=rocksdb_direct					store_name=RocksDB (Direct)			plots=direct											attr=color=colorRocksDb,mark=diamond			sort_plot=1		sort_legend=1
+RESULT store_code=unordered_map						store_name=std::unordered\_map		plots=internal,construction,index,legend,legendVariable	attr=color=colorUnorderedMap,mark=pentagon		sort_plot=1	sort_legend=1
+
+############ Ours ############
+RESULT store_code=pachash							store_name=PaCHash (here)			plots=internal,external,construction,buffered,legend,legendVariable	attr=color=colorPaCHash,mark=pacman			sort_plot=0		sort_legend=1
+RESULT store_code=pachash_direct					store_name=PaCHash (Direct)			plots=direct											attr=color=colorPaCHash,mark=pacman			sort_plot=0		sort_legend=1
+RESULT store_code=pachash_micro_index				store_name=PaCHash (Index only)		plots=index												attr=color=colorPaCHash,mark=pacman			sort_plot=0		sort_legend=1
+RESULT store_code=separator							store_name=Separator (here)				plots=internal,external,construction,buffered,legend,legendVariable	attr=color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}	sort_plot=1		sort_legend=1
+RESULT store_code=separator_direct					store_name=Separator (Direct)		plots=direct											attr=color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}	sort_plot=1		sort_legend=1
+RESULT store_code=separator_micro_index				store_name=Separator (Index only)	plots=index												attr=color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}	sort_plot=1		sort_legend=1
+RESULT store_code=cuckoo							store_name=Cuckoo (here)			plots=construction,buffered,legend,legendVariable		attr=color=colorCuckoo,mark=+,densely dotted,mark options={solid}	sort_plot=1		sort_legend=1
+RESULT store_code=cuckoo_direct						store_name=Cuckoo (Direct)			plots=direct											attr=color=colorCuckoo,mark=+,densely dotted,mark options={solid}	sort_plot=1		sort_legend=1

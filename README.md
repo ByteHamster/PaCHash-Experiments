@@ -11,7 +11,7 @@ To compile and test, execute something like the following:
 mkdir build-pachash
 cd build-pachash
 cmake -DCMAKE_BUILD_TYPE=Release ../external/pachash
-make
+cmake --build . -j 8
 ../scripts/objectSizeBlocksFetched.sh
 ```
 
@@ -29,18 +29,49 @@ You need to apply the patches in the `patches` directory to modify the object st
 so that we can benchmark their internal index data structures.
 You can use the included helper script for that.
 
-To compile and test, execute something like the following:
-
 ```
 cd patches
 ./apply-patches.sh
 cd ..
+```
+
+The following dependencies are needed to compile the competitors.
+Please install them before continuing:
+
+- cblas
+- xerces-c
+
+To compile, execute something like the following:
+
+```
 mkdir build
 cd build 
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make
-./ObjectStoreComparison --path /path/to/folder/on/ssd
+cmake --build . -j 8
 ```
+
+To run the full comparison plot from our paper you can use the following command. On our machine, this takes about 2 hours.
+
+```
+./ObjectStoreComparison --path /path/to/folder/on/ssd  --delta_step 400k | tee comparisonPlot.txt
+```
+
+To only run a smaller experiment for reproducibility, you can also run the following command. On our machine, this takes about x.
+
+```
+./ObjectStoreComparison --path /path/to/folder/on/ssd --delta_step 1M --repetitions 1 | tee comparisonPlot.txt
+```
+
+From the command output stored in `comparisonPlot.txt`, you can generate the main comparison plot using the following commands.
+
+```
+cd scripts
+cp ../build/comparisonPlot.txt comparisonPlot.txt
+sqlplot-tools largeComparisonPlot.tex
+pdflatex largeComparisonPlot.tex
+```
+
+As our script relies on an sqlplot-tools feature that is not merged yet, you can get the tool from this branch: https://github.com/lorenzhs/sqlplot-tools/tree/feature/attribute_mark
 
 ### License
 The competitors in the `external` folder are licensed under their respective license.

@@ -12,40 +12,48 @@
 
 int main(int argc, char** argv) {
     BenchmarkConfig benchmarkConfig;
+    benchmarkConfig.basePath = "/data02/hplehmann/";
+    size_t measurementDelta = 4e5;
+    size_t baseNumQueries = 1e6;
+    size_t repetitions = 3;
 
     tlx::CmdlineParser cmd;
-    cmd.add_string('p', "path", benchmarkConfig.basePath, "Path to directory to store files in");
+    cmd.add_string('p', "path", benchmarkConfig.basePath, "Directory to store data structures in. SSD recommended.");
     cmd.add_flag('v', "variable_size", benchmarkConfig.variableSize, "Use variable size objects");
+    cmd.add_bytes('d', "delta_step", measurementDelta, "Step size of N between multiple measurements");
+    cmd.add_bytes('q', "num_queries", baseNumQueries, "Number of queries to execute by default. Some benchmarks scale this number to account for slower/faster methods.");
+    cmd.add_bytes('r', "repetitions", repetitions, "Number of repetitions to execute for each measurement");
     if (!cmd.process(argc, argv)) {
         return 1;
     }
-    benchmarkConfig.basePath = "/data02/hplehmann/";
 
-    for (benchmarkConfig.N = 4e5; benchmarkConfig.N <= 52e5; benchmarkConfig.N += 4e5) {
-        for (size_t i = 1; i <= 3; i++) {
-            benchmarkConfig.numQueries = 1e6;
-
+    for (benchmarkConfig.N = 4e5; benchmarkConfig.N <= 52e5; benchmarkConfig.N += measurementDelta) {
+        for (size_t i = 1; i <= repetitions; i++) {
             // Full data store
+            benchmarkConfig.numQueries = baseNumQueries;
             {SiltComparisonItem(benchmarkConfig, false).performBenchmark();}
-            {SiltComparisonItem(benchmarkConfig, true).performBenchmark();}
             {LevelDBComparisonItem(benchmarkConfig).performBenchmark();}
             {RocksDBComparisonItem(benchmarkConfig, false).performBenchmark();}
-            {RocksDBComparisonItem(benchmarkConfig, true).performBenchmark();}
             {PaCHashComparisonItem(benchmarkConfig, false).performBenchmark();}
-            {PaCHashComparisonItem(benchmarkConfig, true).performBenchmark();}
             {SeparatorComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {CuckooComparisonItem(benchmarkConfig, false).performBenchmark();}
+            {PaCHashComparisonItem(benchmarkConfig, true).performBenchmark();}
             {SeparatorComparisonItem(benchmarkConfig, true).performBenchmark();}
             {CuckooComparisonItem(benchmarkConfig, true).performBenchmark();}
-            {CuckooComparisonItem(benchmarkConfig, false).performBenchmark();}
+            benchmarkConfig.numQueries = baseNumQueries / 10;
+            {SiltComparisonItem(benchmarkConfig, true).performBenchmark();}
+            {RocksDBComparisonItem(benchmarkConfig, true).performBenchmark();}
 
             // Static part of dynamic stores
+            benchmarkConfig.numQueries = baseNumQueries;
             {LevelDBSingleTableComparisonItem(benchmarkConfig).performBenchmark();}
             {SiltComparisonItemSortedStore(benchmarkConfig, false).performBenchmark();}
+            benchmarkConfig.numQueries = baseNumQueries / 10;
             {SiltComparisonItemSortedStore(benchmarkConfig, true).performBenchmark();}
 
             // Index microbenchmark
             {SiltComparisonItemSortedStoreMicro(benchmarkConfig).performBenchmark();}
-            benchmarkConfig.numQueries *= 5;
+            benchmarkConfig.numQueries = baseNumQueries * 5;
             {PaCHashMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
             {LevelDBSingleTableMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
             {RecSplitComparisonItem(benchmarkConfig).performBenchmark();}

@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(ObjectStoreComparison)
 
+# Some PaCHash configurations can be compiled without uring but the benchmarks cannot.
+find_package(LibUring REQUIRED)
+
 add_executable(ObjectStoreComparison main.cpp)
 target_compile_features(ObjectStoreComparison PUBLIC cxx_std_20)
 set_property(TARGET ObjectStoreComparison PROPERTY CXX_STANDARD 20)
@@ -45,11 +48,11 @@ target_compile_features(silt PUBLIC cxx_std_17)
 set_property(TARGET silt PROPERTY CXX_STANDARD 17)
 target_link_libraries(ObjectStoreComparison PUBLIC silt)
 
-#add_custom_command(OUTPUT external/silt/utils/config.h
-#        COMMAND autoreconf -is && ./configure && mv config.h utils/config.h && sed -i 's/HAVE_LIBDB/HAVE_LIBDB_NO/g' utils/config.h
-#        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/silt)
-#add_custom_target(siltConfig DEPENDS external/silt/utils/config.h)
-#add_dependencies(silt siltConfig)
+add_custom_command(OUTPUT external/silt/utils/config.h
+        COMMAND [ -f "${CMAKE_CURRENT_SOURCE_DIR}/external/silt/utils/config.h" ] || (autoreconf -is && ./configure && mv config.h utils/config.h && sed -i 's/HAVE_LIBDB/HAVE_LIBDB_NO/g' utils/config.h)
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/silt)
+add_custom_target(siltConfig DEPENDS external/silt/utils/config.h)
+add_dependencies(silt siltConfig)
 
 add_subdirectory(external/pachash)
 target_compile_features(PaCHash INTERFACE cxx_std_20)

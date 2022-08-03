@@ -1,0 +1,403 @@
+\documentclass{article}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{dsfont}
+\usepackage{footmisc}
+\usepackage{marvosym}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{every axis/.style={scale only axis}}
+
+\pgfplotsset{
+  major grid style={thin,dotted},
+  minor grid style={thin,dotted},
+  ymajorgrids,
+  yminorgrids,
+  every axis/.append style={
+    line width=0.7pt,
+    tick style={
+      line cap=round,
+      thin,
+      major tick length=4pt,
+      minor tick length=2pt,
+    },
+  },
+  legend cell align=left,
+  legend style={
+    line width=0.7pt,
+    /tikz/every even column/.append style={column sep=3mm,black},
+    /tikz/every odd column/.append style={black},
+  },
+  % move title closer
+  legend style={font=\small},
+  title style={yshift=-2pt},
+  % less space on left and right
+  enlarge x limits=0.04,
+  every tick label/.append style={font=\footnotesize},
+  every axis label/.append style={font=\small},
+  every axis y label/.append style={yshift=-1ex},
+  /pgf/number format/1000 sep={},
+  axis lines*=left,
+  xlabel near ticks,
+  ylabel near ticks,
+  axis lines*=left,
+  label style={font=\footnotesize},       
+  tick label style={font=\footnotesize},
+  plotBigComparison/.style={
+    width=32.5mm,
+    height=38.0mm,
+  },
+}
+
+\title{PaCHash plot}
+\date{}
+\begin{document}
+\definecolor{colorPaCHash}{HTML}{377EB8}
+\definecolor{colorSeparator}{HTML}{000000}
+\definecolor{colorPthash}{HTML}{000000}
+\definecolor{colorLevelDb}{HTML}{FF7F00}
+\definecolor{colorSilt}{HTML}{4DAF4A}
+\definecolor{colorRocksDb}{HTML}{984EA3}
+\definecolor{colorRecSplit}{HTML}{A65628}
+\definecolor{colorUnorderedMap}{HTML}{F781BF}
+\definecolor{colorCuckoo}{HTML}{E41A1C}
+\definecolor{colorChd}{HTML}{444444}
+
+\pgfplotscreateplotcyclelist{mycolorlist}{%
+  {colorPaCHash, mark=diamond},
+  {colorLevelDb, mark=square},
+  {colorSilt, mark=o},
+  {colorSeparator, mark=triangle},
+  {colorRocksDb, mark=pentagon}
+}
+\pgfdeclareplotmark{pacman}{%
+  \pgfpathmoveto{\pgfpointorigin}%
+  \pgfpathlineto{\pgfqpointpolar{40}{1.2\pgfplotmarksize}}%
+  \pgfpatharc{40}{320}{1.2\pgfplotmarksize}%
+  \pgfpathlineto{\pgfpointorigin}%
+  \pgfusepath{fill}
+}
+\pgfdeclareplotmark{flippedTriangle}{%
+  \pgfpathmoveto{\pgfqpointpolar{-90}{1.2\pgfplotmarksize}}%
+  \pgfpathlineto{\pgfqpointpolar{30}{1.2\pgfplotmarksize}}%
+  \pgfpathlineto{\pgfqpointpolar{150}{1.2\pgfplotmarksize}}%
+  \pgfpathclose%
+  \pgfusepath{stroke}
+}
+
+% IMPORT-DATA competitorNames competitorNames.txt
+% IMPORT-DATA objectStores comparisonPlot.txt
+
+\begin{figure*}[t]
+  \begin{tabular}{crrr}
+    \multirow{-5}{*}{{\rotatebox[origin=c]{90}{\textbf{Fixed Size Objects}}}}
+    &
+    \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      ylabel={\begin{tabular}{c}\textbf{Space}\\internal [B/object]\end{tabular}},
+      ymode=log,
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% 1.0*AVG(internalSpaceBytes)/numObjects as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%internal%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorChd,mark=oplus,densely dotted,mark options={solid}] coordinates { (0.4,0.12566) };
+      \addlegendentry{CHD (16-perfect)};
+      \addplot[color=colorLevelDb,mark=o] coordinates { (0.4,317.334) };
+      \addlegendentry{LevelDB};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0.4,1.05694) };
+      \addlegendentry{LevelDB (Static part)};
+      \addplot[color=colorPthash,mark=|,densely dotted,mark options={solid}] coordinates { (0.4,0.41562) };
+      \addlegendentry{PTHash };
+      \addplot[color=colorRecSplit,mark=x,densely dotted,mark options={solid}] coordinates { (0.4,0.21398) };
+      \addlegendentry{RecSplit};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0.4,1.7242) };
+      \addlegendentry{RocksDB};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0.4,4.35016) };
+      \addlegendentry{SILT};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,1.80582) };
+      \addlegendentry{SILT (Static part)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,0.0991733) };
+      \addlegendentry{Separator (here)};
+      \addplot[color=colorUnorderedMap,mark=pentagon] coordinates { (0.4,40.22482) };
+      \addlegendentry{std::unordered\_map};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,0.0500667) };
+      \addlegendentry{PaCHash (here)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+  &
+  \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      ylabel={\begin{tabular}{c}\textbf{Space}\\external [B/object]\end{tabular}},
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% 1.0*AVG(externalSpaceBytes)/numObjects as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%external%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorLevelDb,mark=o] coordinates { (0.4,268.058) };
+      \addlegendentry{LevelDB};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0.4,268.136) };
+      \addlegendentry{LevelDB (Static part)};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0.4,276.345) };
+      \addlegendentry{RocksDB};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0.4,269.966) };
+      \addlegendentry{SILT};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,268.0) };
+      \addlegendentry{SILT (Static part)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,280.197) };
+      \addlegendentry{Separator (here)};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,266.25) };
+      \addlegendentry{PaCHash (here)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+  &
+  \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      ylabel={\begin{tabular}{c}\textbf{Construction Throughput}\\ buffered I/O [Objects/s]\end{tabular}},
+      ymode=log,
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% 1.0*numObjects/(0.001*AVG(constructionTimeMs)) as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%construction%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorChd,mark=oplus,densely dotted,mark options={solid}] coordinates { (0.4,539811) };
+      \addlegendentry{CHD (16-perfect)};
+      \addplot[color=colorCuckoo,mark=+,densely dotted,mark options={solid}] coordinates { (0.4,2.7088e+06) };
+      \addlegendentry{Cuckoo (here)};
+      \addplot[color=colorLevelDb,mark=o] coordinates { (0.4,302191) };
+      \addlegendentry{LevelDB};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0.4,796020) };
+      \addlegendentry{LevelDB (Static part)};
+      \addplot[color=colorPthash,mark=|,densely dotted,mark options={solid}] coordinates { (0.4,5.19481e+06) };
+      \addlegendentry{PTHash };
+      \addplot[color=colorRecSplit,mark=x,densely dotted,mark options={solid}] coordinates { (0.4,408163) };
+      \addlegendentry{RecSplit};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0.4,422833) };
+      \addlegendentry{RocksDB};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0.4,39857.8) };
+      \addlegendentry{SILT};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,167891) };
+      \addlegendentry{SILT (Static part)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,2.26843e+06) };
+      \addlegendentry{Separator (here)};
+      \addplot[color=colorUnorderedMap,mark=pentagon] coordinates { (0.4,6.95652e+06) };
+      \addlegendentry{std::unordered\_map};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,3.82166e+06) };
+      \addlegendentry{PaCHash (here)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+    \\
+    &
+  \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      ylabel={\begin{tabular}{c}\textbf{Query Throughput}\\internal only [MQueries/s]\end{tabular}},
+      % xlabel={Number of objects [Millions]},
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% AVG(queriesPerSecond)/1000000 as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%index%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorChd,mark=oplus,densely dotted,mark options={solid}] coordinates { (0.4,14.9688) };
+      \addlegendentry{CHD (16-perfect)};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0.4,2.190445) };
+      \addlegendentry{LevelDB (Index only)};
+      \addplot[color=colorPthash,mark=|,densely dotted,mark options={solid}] coordinates { (0.4,42.01555) };
+      \addlegendentry{PTHash };
+      \addplot[color=colorRecSplit,mark=x,densely dotted,mark options={solid}] coordinates { (0.4,3.37954) };
+      \addlegendentry{RecSplit};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,0.373069) };
+      \addlegendentry{SILT (Index only)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,33.6436) };
+      \addlegendentry{Separator (Index only)};
+      \addplot[color=colorUnorderedMap,mark=pentagon] coordinates { (0.4,7.27513) };
+      \addlegendentry{std::unordered\_map};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,10.3953) };
+      \addlegendentry{PaCHash (Index only)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+  &
+  \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      %xlabel={Number of objects [Millions]},
+      ylabel={\begin{tabular}{c}\textbf{Query Throughput}\\direct I/O [MQueries/s]\end{tabular}},
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% AVG(queriesPerSecond)/1000000 as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%direct%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorCuckoo,mark=+,densely dotted,mark options={solid}] coordinates { (0.4,0.0331125) };
+      \addlegendentry{Cuckoo (Direct)};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0.4,0.0093816) };
+      \addlegendentry{RocksDB (Direct)};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0.4,0.0114407) };
+      \addlegendentry{SILT (Direct)};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,0.0122688) };
+      \addlegendentry{SILT (Static, Direct)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,0.0840121) };
+      \addlegendentry{Separator (Direct)};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,0.0731348) };
+      \addlegendentry{PaCHash (Direct)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+  &
+  \begin{tikzpicture}
+    \begin{axis}[
+      plotBigComparison,
+      % xlabel={Number of objects [Millions]},
+      ylabel={\begin{tabular}{c}\textbf{Query Throughput}\\buffered I/O [MQueries/s]\end{tabular}},
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% numObjects/1000000.0 as x,
+      %% AVG(queriesPerSecond)/1000000 as y,
+      %% store_name as ptitle,
+      %% attr,
+      %% MULTIPLOT
+      %% FROM objectStores
+      %% JOIN competitorNames on method=store_code
+      %% WHERE plots LIKE "%buffered%"
+      %% GROUP BY MULTIPLOT, x
+      %% ORDER BY -sort_plot, MULTIPLOT, x
+      \addplot[color=colorCuckoo,mark=+,densely dotted,mark options={solid}] coordinates { (0.4,0.238371) };
+      \addlegendentry{Cuckoo (here)};
+      \addplot[color=colorLevelDb,mark=o] coordinates { (0.4,0.330273) };
+      \addlegendentry{LevelDB};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0.4,0.418602) };
+      \addlegendentry{LevelDB (Static part)};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0.4,0.303674) };
+      \addlegendentry{RocksDB};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0.4,0.208056) };
+      \addlegendentry{SILT};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0.4,0.231096) };
+      \addlegendentry{SILT (Static part)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0.4,0.572509) };
+      \addlegendentry{Separator (here)};
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0.4,0.981116) };
+      \addlegendentry{PaCHash (here)};
+
+      \legend{};
+    \end{axis}
+  \end{tikzpicture}
+  \end{tabular}
+  \vspace{-.1cm}
+  \begin{center}
+  \begin{tikzpicture}
+    \begin{axis}[
+      legend pos=north west,
+      width=4cm,
+      height=2cm,
+      hide axis,
+      xmin=10,
+      xmax=50,
+      ymin=0,
+      ymax=0.4,
+      legend style={font=\small},
+      legend columns=3,
+      transpose legend,
+      % transpose legend,
+      % legend columns=4,
+      % legend to name={leg:big_comparison_table},
+      ]
+      %% MULTIPLOT(store_name|ptitle|attr) SELECT
+      %% 0 as x, 0 as y,
+      %% store_name as ptitle,
+      %% attr, MULTIPLOT
+      %% FROM competitorNames
+      %% WHERE plots LIKE "%legend%"
+      %% ORDER BY sort_legend, MULTIPLOT
+      \addplot[color=colorChd,mark=oplus,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{CHD (16-perfect)};
+      \addplot[color=colorCuckoo,mark=+,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{Cuckoo (here)};
+      \addplot[color=colorLevelDb,mark=o] coordinates { (0,0) };
+      \addlegendentry{LevelDB};
+      \addplot[color=colorLevelDb,mark=triangle] coordinates { (0,0) };
+      \addlegendentry{LevelDB (Static part)};
+      \addplot[color=colorPthash,mark=|,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{PTHash };
+      \addplot[color=colorPaCHash,mark=pacman] coordinates { (0,0) };
+      \addlegendentry{PaCHash (here)};
+      \addplot[color=colorRecSplit,mark=x,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{RecSplit};
+      \addplot[color=colorRocksDb,mark=diamond] coordinates { (0,0) };
+      \addlegendentry{RocksDB};
+      \addplot[color=colorSilt,mark=square,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{SILT};
+      \addplot[color=colorSilt,mark=otimes,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{SILT (Static part)};
+      \addplot[color=colorSeparator,mark=flippedTriangle,densely dotted,mark options={solid}] coordinates { (0,0) };
+      \addlegendentry{Separator (here)};
+      \addplot[color=colorUnorderedMap,mark=pentagon] coordinates { (0,0) };
+      \addlegendentry{std::unordered\_map};
+    \end{axis}
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-.8cm}
+  \caption{Comparison with competitor object stores using objects of fixed size 256 bytes.
+  Keys are 8 byte random strings.
+  Dotted lines indicate methods supporting only objects of identical size natively.
+  We enhanced two of them to partially support variable size objects.}
+  \label{fig:competitors}
+\end{figure*}
+
+\end{document}
+

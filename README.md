@@ -25,6 +25,19 @@ Included competitors:
 - RecSplit
 - CHD
 
+##### Benchmarks in Docker Container
+We provide a minimal docker file to reproduce a small number of experiments inside a docker container.
+Note that the docker container usually produces slower results, as it is not set up to access a dedicated SSD.
+
+```
+cd scripts
+sudo docker-compose up
+```
+
+The resulting measurements are then available in the `scripts/dockerVolume` folder.
+Building and running the container on an average laptop takes about 40 minutes.
+
+##### Benchmarks on Host Machine
 You need to apply the patches in the `patches` directory to modify the object stores,
 so that we can benchmark their internal index data structures.
 You can use the included helper script for that.

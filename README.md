@@ -40,6 +40,7 @@ Please install them before continuing:
 
 - cblas
 - xerces-c
+- googletest (libgtest-dev)
 
 To compile, execute something like the following:
 
@@ -50,13 +51,15 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build . -j 8
 ```
 
-To run the full comparison plot from our paper you can use the following command. On our machine, this takes about 2 hours.
+To run the full comparison plot from our paper you can use the following command.
+On our machine with a very fast SSD, this takes about 3 hours.
 
 ```
 ./ObjectStoreComparison --path /path/to/folder/on/ssd  --delta_step 400k | tee comparisonPlot.txt
 ```
 
-To only run a smaller experiment for reproducibility, you can also run the following command. On our machine, this takes about x.
+To only run a smaller experiment for reproducibility, you can also run the following command.
+On our machine with a very fast SSD, this takes about 10 minutes.
 
 ```
 ./ObjectStoreComparison --path /path/to/folder/on/ssd --delta_step 1M --repetitions 1 | tee comparisonPlot.txt

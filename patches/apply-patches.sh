@@ -13,5 +13,8 @@ for d in * ; do
     fi
     cd ..
 done
-echo "If you don't see errors above, the patches have been applied successfully."
+
+echo "Done."
+echo "If you do not see errors above, the patches have been applied successfully."
+echo "If the patches could not be applied, the most likely cause is that they already are applied."
 

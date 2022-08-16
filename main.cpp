@@ -12,7 +12,6 @@
 
 int main(int argc, char** argv) {
     BenchmarkConfig benchmarkConfig;
-    benchmarkConfig.basePath = "/data02/hplehmann/";
     size_t measurementDelta = 4e5;
     size_t baseNumQueries = 1e6;
     size_t repetitions = 3;
@@ -24,6 +23,9 @@ int main(int argc, char** argv) {
     cmd.add_bytes('q', "num_queries", baseNumQueries, "Number of queries to execute by default. Some benchmarks scale this number to account for slower/faster methods.");
     cmd.add_bytes('r', "repetitions", repetitions, "Number of repetitions to execute for each measurement");
     if (!cmd.process(argc, argv)) {
+        return 1;
+    } else if (benchmarkConfig.basePath.empty()) {
+        std::cerr << "No path given" << std::endl;
         return 1;
     }
 

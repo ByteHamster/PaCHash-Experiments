@@ -1,9 +1,0 @@
-version: "3.0"
-services:
-  pachash:
-    build:
-      context: ..
-      dockerfile: scripts/Dockerfile
-    volumes:
-        - ./dockerVolume:/opt/dockerVolume # Measurement script and output directory.
-        #- /path/to/ssd:/opt/testDirectory # Directory to store test files in.

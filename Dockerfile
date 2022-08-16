@@ -23,4 +23,4 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release ..
 RUN cmake --build . -j 8
 
 # Actual benchmark
-ENTRYPOINT bash /opt/dockerVolume/runscript.sh
+CMD bash /opt/dockerVolume/figure-4.sh

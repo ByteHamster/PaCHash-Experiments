@@ -8,7 +8,7 @@ We therefore strongly recommend using the docker image.
 
 To build the docker image with a pre-compiled PaCHash install and all benchmark utilities, run the following command.
 Compiler warnings in competitors' code are expected and should not prevent building the docker image.
-Building the container takes about 20 minutes.
+Building the container takes about 15 minutes.
 
 ```
 docker build -t pachash .
@@ -22,7 +22,7 @@ Each experiment can be started by changing the command of the docker image to ge
 | Figure in paper | Launch command                | Estimated runtime  |
 | :-------------- | :---------------------------- | :----------------- |
 | 2               | todo                          |                    |
-| 4               | /opt/dockerVolume/figure-4.sh |                    |
+| 4               | /opt/dockerVolume/figure-4.sh | 30 minutes         |
 
 
 ```

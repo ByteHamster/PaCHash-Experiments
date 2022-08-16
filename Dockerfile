@@ -14,10 +14,17 @@ RUN git checkout feature/attribute_mark
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DWITH_POSTGRESQL=OFF -DWITH_MYSQL=OFF ..
 RUN cmake --build . -j 8
 
-# Build PaCHash
 COPY . /opt/pachash
-RUN mkdir /opt/pachash/build
 RUN mkdir -p /opt/testDirectory
+
+# Build PaCHash basics
+RUN mkdir /opt/pachash/external/pachash/build
+WORKDIR /opt/pachash/external/pachash/build
+RUN cmake -DCMAKE_BUILD_TYPE=Release ..
+RUN cmake --build . -j 8
+
+# Build PaCHash competitor experiments
+RUN mkdir /opt/pachash/build
 WORKDIR /opt/pachash/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ..
 RUN cmake --build . -j 8

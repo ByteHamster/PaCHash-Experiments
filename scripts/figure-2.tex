@@ -1,0 +1,173 @@
+\documentclass{article}
+\usepackage[a4paper, margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{dsfont}
+\usepackage{footmisc}
+\usepackage{marvosym}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{every axis/.style={scale only axis}}
+
+\pgfplotsset{
+  major grid style={thin,dotted},
+  minor grid style={thin,dotted},
+  ymajorgrids,
+  yminorgrids,
+  every axis/.append style={
+    line width=0.7pt,
+    tick style={
+      line cap=round,
+      thin,
+      major tick length=4pt,
+      minor tick length=2pt,
+    },
+  },
+  legend cell align=left,
+  legend style={
+    line width=0.7pt,
+    /tikz/every even column/.append style={column sep=3mm,black},
+    /tikz/every odd column/.append style={black},
+  },
+  % move title closer
+  legend style={font=\small},
+  title style={yshift=-2pt},
+  % less space on left and right
+  enlarge x limits=0.04,
+  every tick label/.append style={font=\footnotesize},
+  every axis label/.append style={font=\small},
+  every axis y label/.append style={yshift=-1ex},
+  /pgf/number format/1000 sep={},
+  axis lines*=left,
+  xlabel near ticks,
+  ylabel near ticks,
+  axis lines*=left,
+  label style={font=\footnotesize},       
+  tick label style={font=\footnotesize},
+  plotMaximumLoadFactor/.style={
+    width=50.0mm,
+    height=40.0mm,
+  },
+}
+
+\title{PaCHash plot}
+\date{}
+\begin{document}
+\definecolor{colorPaCHash}{HTML}{377EB8}
+\definecolor{colorSeparator}{HTML}{000000}
+\definecolor{colorPthash}{HTML}{000000}
+\definecolor{colorLevelDb}{HTML}{FF7F00}
+\definecolor{colorSilt}{HTML}{4DAF4A}
+\definecolor{colorRocksDb}{HTML}{984EA3}
+\definecolor{colorRecSplit}{HTML}{A65628}
+\definecolor{colorUnorderedMap}{HTML}{F781BF}
+\definecolor{colorCuckoo}{HTML}{E41A1C}
+\definecolor{colorChd}{HTML}{444444}
+
+\pgfplotscreateplotcyclelist{mycolorlist}{%
+  {colorPaCHash, mark=diamond},
+  {colorLevelDb, mark=square},
+  {colorSilt, mark=o},
+  {colorSeparator, mark=triangle},
+  {colorRocksDb, mark=pentagon}
+}
+\pgfdeclareplotmark{pacman}{%
+  \pgfpathmoveto{\pgfpointorigin}%
+  \pgfpathlineto{\pgfqpointpolar{40}{1.2\pgfplotmarksize}}%
+  \pgfpatharc{40}{320}{1.2\pgfplotmarksize}%
+  \pgfpathlineto{\pgfpointorigin}%
+  \pgfusepath{fill}
+}
+\pgfdeclareplotmark{flippedTriangle}{%
+  \pgfpathmoveto{\pgfqpointpolar{-90}{1.2\pgfplotmarksize}}%
+  \pgfpathlineto{\pgfqpointpolar{30}{1.2\pgfplotmarksize}}%
+  \pgfpathlineto{\pgfqpointpolar{150}{1.2\pgfplotmarksize}}%
+  \pgfpathclose%
+  \pgfusepath{stroke}
+}
+
+% IMPORT-DATA objectSizeBlocksFetched figure-2.txt
+
+\begin{figure*}[t]
+    \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+              title={},
+              plotMaximumLoadFactor,
+                xlabel={Average object size},
+                ylabel={\begin{tabular}{c}\textbf{I/O Volume}\\average [B/Query]\end{tabular}},
+                ytick distance=1024,
+                xtick distance=128,
+                scaled ticks=false,
+                cycle list name=mycolorlist,
+            ]
+            %% MULTIPLOT(a|ptitle)
+            %% WITH
+            %%    valuesForA(a) AS (values (2),(4),(8),(16),(32)),
+            %%    valuesForObjectSize(size) AS (values (64),(960))
+            %% SELECT
+            %%    printf("$a$=%d theory", a) as ptitle,
+            %%    a as a,
+            %%    size as x,
+            %%    4096.0*(1.0 + 1.0*size/4096.0 + 1.0/a) as y
+            %% FROM valuesForA
+            %% CROSS JOIN valuesForObjectSize
+            %% GROUP BY MULTIPLOT, x
+            %% ORDER BY MULTIPLOT, x
+
+
+            %% MULTIPLOT(a|ptitle) SELECT
+            %%    printf("$a$=%d real", a) as ptitle,
+            %%    objectSize as x,
+            %%    blocks_fetched*4096 as y,
+            %%    MULTIPLOT
+            %% FROM objectSizeBlocksFetched
+            %% GROUP BY MULTIPLOT, x
+            %% ORDER BY MULTIPLOT, x
+
+            \legend{};
+            \end{axis}
+        \end{tikzpicture}
+        \hfill
+        \begin{tikzpicture}
+            \begin{axis}[
+              title={},
+              plotMaximumLoadFactor,
+                xlabel={Average object size},
+                ylabel={\begin{tabular}{c}\textbf{Query Time}\\direct I/O [$\mu$s/Query]\end{tabular}},
+                scaled ticks=false,
+                xtick distance=128,
+                legend columns=1,
+                legend to name=bytesFetchedLegend,
+                cycle list name=mycolorlist,
+            ]
+            %% MULTIPLOT(a|ptitle) SELECT
+            %%    printf("$a$=%d", a) as ptitle,
+            %%    objectSize as x,
+            %%    1000000.0/queriesPerSecond as y,
+            %%    MULTIPLOT
+            %% FROM objectSizeBlocksFetched
+            %% GROUP BY MULTIPLOT, x
+            %% ORDER BY MULTIPLOT, x
+
+            \end{axis}
+          \end{tikzpicture}
+          \hfill
+          \begin{tikzpicture}[baseline={(0,-3)}]
+            \ref{bytesFetchedLegend}
+          \end{tikzpicture}
+    \caption{Dependence of I/O volume and query time on the average object size $s$. Sizes are normal distributed with variance $s/5$, rounded to the next positive integer. Dotted lines show theoretic I/O volumes, while marks show measurements. Note that the measurements closely match the analysis. Using other distributions and plotting over the returned objects' sizes gives equivalent results.}
+    \label{fig:bytesFetched}
+\end{figure*}
+
+\end{document}
+

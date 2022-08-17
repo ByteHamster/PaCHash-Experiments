@@ -16,7 +16,8 @@ RUN cmake -DCMAKE_BUILD_TYPE=Release -DWITH_POSTGRESQL=OFF -DWITH_MYSQL=OFF ..
 RUN cmake --build . -j 8
 
 COPY . /opt/pachash
-RUN mkdir -p /opt/testDirectory
+WORKDIR /opt/pachash/patches
+RUN ./apply-patches.sh
 
 # Build PaCHash basics
 RUN mkdir /opt/pachash/external/pachash/build

@@ -110,13 +110,14 @@
                 scaled ticks=false,
                 cycle list name=mycolorlist,
             ]
-            %% MULTIPLOT(a|ptitle)
+            %% MULTIPLOT(a|ptitle|attrplus)
             %% WITH
-            %%    valuesForA(a) AS (values (2),(4),(8),(16),(32)),
+            %%    valuesForA(a) AS (values (2),(4),(8),(16)),
             %%    valuesForObjectSize(size) AS (values (64),(960))
             %% SELECT
             %%    printf("$a$=%d theory", a) as ptitle,
             %%    a as a,
+            %%    "mark=none,densely dotted" as attr,
             %%    size as x,
             %%    4096.0*(1.0 + 1.0*size/4096.0 + 1.0/a) as y
             %% FROM valuesForA
@@ -125,10 +126,11 @@
             %% ORDER BY MULTIPLOT, x
 
 
-            %% MULTIPLOT(a|ptitle) SELECT
+            %% MULTIPLOT(a|ptitle|attrplus) SELECT
             %%    printf("$a$=%d real", a) as ptitle,
             %%    objectSize as x,
             %%    blocks_fetched*4096 as y,
+            %%    "only marks" as attr,
             %%    MULTIPLOT
             %% FROM objectSizeBlocksFetched
             %% GROUP BY MULTIPLOT, x
@@ -163,7 +165,7 @@
           \end{tikzpicture}
           \hfill
           \begin{tikzpicture}[baseline={(0,-3)}]
-            \ref{bytesFetchedLegend}
+            \ref*{bytesFetchedLegend}
           \end{tikzpicture}
     \caption{Dependence of I/O volume and query time on the average object size $s$. Sizes are normal distributed with variance $s/5$, rounded to the next positive integer. Dotted lines show theoretic I/O volumes, while marks show measurements. Note that the measurements closely match the analysis. Using other distributions and plotting over the returned objects' sizes gives equivalent results.}
     \label{fig:bytesFetched}

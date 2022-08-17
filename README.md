@@ -30,6 +30,8 @@ If you do not mount the volume, docker's (comparably slow) layer filesystem is u
 docker run --interactive --tty -v "$(pwd)/scripts/dockerVolume:/opt/dockerVolume" -v "/path/to/ssd:/opt/testDirectory" pachash /opt/dockerVolume/figure-4.sh
 ```
 
+The output pdf files containing the plots are stored in the `scripts/dockerVolume` folder.
+
 ### License
 The competitors in the `external` folder are licensed under their respective license.
 The benchmark code is licensed under the [GPLv3](/LICENSE).

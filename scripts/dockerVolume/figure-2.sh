@@ -10,6 +10,7 @@ for objectSize in $(seq 128 128 896); do
     ./Benchmark --pachash 4 --load_factor 1 $params --object_size $objectSize --num_objects $numObjects | tee --append figure-2.txt
     ./Benchmark --pachash 8 --load_factor 1 $params --object_size $objectSize --num_objects $numObjects | tee --append figure-2.txt
     ./Benchmark --pachash 16 --load_factor 1 $params --object_size $objectSize --num_objects $numObjects | tee --append figure-2.txt
+    ./Benchmark --pachash 32 --load_factor 1 $params --object_size $objectSize --num_objects $numObjects | tee --append figure-2.txt
 done
 
 # Build plot

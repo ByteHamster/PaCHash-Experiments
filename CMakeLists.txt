@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-project(ObjectStoreComparison)
+project(PaCHashExperiments)
 
 # Some PaCHash configurations can be compiled without uring but the benchmarks cannot.
 find_package(LibUring REQUIRED)

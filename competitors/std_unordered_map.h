@@ -21,13 +21,13 @@ class StdUnorderedMapComparisonItem : public StoreComparisonItem {
             map.reserve(objects.size());
             for (const Object &object : objects) {
                 assert(object.length == benchmarkConfig.objectSize);
-                map.insert(std::make_pair(pachash::MurmurHash64(object.key), nullptr));
+                map.insert(std::make_pair(util::MurmurHash64(object.key), nullptr));
             }
         }
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
-                char *result = map.at(pachash::MurmurHash64(keysQueryOrder[i]));
+                char *result = map.at(util::MurmurHash64(keysQueryOrder[i]));
                 DO_NOT_OPTIMIZE(result);
             }
         }

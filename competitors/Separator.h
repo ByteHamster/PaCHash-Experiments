@@ -28,7 +28,7 @@ class SeparatorComparisonItemBase : public StoreComparisonItem {
 
         void construct(std::vector<Object> &objects) override {
             auto hashFunction = [](const Object &object) -> pachash::StoreConfig::key_t {
-                return pachash::MurmurHash64(object.key);
+                return util::MurmurHash64(object.key);
             };
             auto lengthEx = [&](const Object &object) -> size_t {
                 return object.length;
@@ -50,7 +50,7 @@ class SeparatorMicroIndexComparisonItem : public SeparatorComparisonItemBase {
 
         void query(std::vector<std::string> &keysQueryOrder) override {
             for (size_t i = 0; i < benchmarkConfig.numQueries; i++) {
-                pachash::StoreConfig::key_t key = pachash::MurmurHash64(keysQueryOrder[i]);
+                pachash::StoreConfig::key_t key = util::MurmurHash64(keysQueryOrder[i]);
                 size_t block = objectStore.findBlockToAccess(key);
                 DO_NOT_OPTIMIZE(block);
             }

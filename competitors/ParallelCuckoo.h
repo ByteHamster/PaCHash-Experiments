@@ -28,7 +28,7 @@ class CuckooComparisonItemBase : public StoreComparisonItem {
 
         void construct(std::vector<Object> &objects) override {
             auto hashFunction = [](const Object &object) -> pachash::StoreConfig::key_t {
-                return pachash::MurmurHash64(object.key);
+                return util::MurmurHash64(object.key);
             };
             auto lengthEx = [&](const Object &object) -> size_t {
                 return object.length;

@@ -21,8 +21,9 @@ class SiltComparisonItemBase : public StoreComparisonItem {
                 : StoreComparisonItem(std::move(name), benchmarkConfig),
                     filename(benchmarkConfig.basePath + "silt-test") {
             this->directIo = directIo;
-            system(("rm -rf " + filename).c_str());
-            system(("mkdir -p " + filename).c_str());
+            int ret = system(("rm -rf " + filename).c_str());
+            ret = system(("mkdir -p " + filename).c_str());
+            (void) ret;
             auto* config = new fawn::Configuration("../competitors/siltConfig.xml");
             config->SetStringValue("data-len", std::to_string(benchmarkConfig.objectSize));
             char buf[1024];
@@ -53,7 +54,8 @@ class SiltComparisonItemBase : public StoreComparisonItem {
             store->Close();
             store->Destroy();
             delete store;
-            system(("rm -r " + filename).c_str());
+            int ret = system(("rm -r " + filename).c_str());
+            (void) ret;
         }
 
         size_t externalSpaceUsage() override {
@@ -97,8 +99,9 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
                 : StoreComparisonItem(std::move(name), benchmarkConfig),
                     filename(benchmarkConfig.basePath + "silt-test-sorted") {
             this->directIo = directIo;
-            system(("rm -rf " + filename).c_str());
-            system(("mkdir -p " + filename).c_str());
+            int ret = system(("rm -rf " + filename).c_str());
+            ret = system(("mkdir -p " + filename).c_str());
+            (void) ret;
             auto* config = new fawn::Configuration("../competitors/siltConfigSorted.xml");
             config->SetStringValue("data-len", std::to_string(benchmarkConfig.objectSize));
             char buf[1024];
@@ -119,7 +122,8 @@ class SiltComparisonItemSortedStoreBase : public StoreComparisonItem {
             sortedStore->Close();
             sortedStore->Destroy();
             delete sortedStore;
-            system(("rm -rf " + filename).c_str());
+            int ret = system(("rm -rf " + filename).c_str());
+            (void) ret;
         }
 
         size_t externalSpaceUsage() override {

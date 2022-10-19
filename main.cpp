@@ -9,6 +9,7 @@
 #include "competitors/Chd.h"
 #include "competitors/ParallelCuckoo.h"
 #include "competitors/PTHash.h"
+#include "competitors/FlatHashMap.h"
 
 int main(int argc, char** argv) {
     BenchmarkConfig benchmarkConfig;
@@ -62,6 +63,7 @@ int main(int argc, char** argv) {
             {PTHashComparisonItem(benchmarkConfig).performBenchmark();}
             {ChdComparisonItem(benchmarkConfig).performBenchmark();}
             {StdUnorderedMapComparisonItem(benchmarkConfig).performBenchmark();}
+            {FlatHashMapComparisonItem(benchmarkConfig).performBenchmark();}
             {SeparatorMicroIndexComparisonItem(benchmarkConfig).performBenchmark();}
         }
     }

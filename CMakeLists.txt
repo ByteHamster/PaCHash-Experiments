@@ -69,3 +69,7 @@ target_include_directories(Cmph PUBLIC external/cmph/src)
 target_link_libraries(ObjectStoreComparison PRIVATE Cmph)
 
 target_include_directories(ObjectStoreComparison PUBLIC external/pthash/include)
+
+set(ABSL_PROPAGATE_CXX_STD ON CACHE PATH "")
+add_subdirectory(external/abseil-cpp)
+target_link_libraries(ObjectStoreComparison PUBLIC absl::flat_hash_map)
